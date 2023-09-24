@@ -10,7 +10,7 @@ export const CardBase = () => {
             <Text>32% of annual target</Text>
             <Text>$9999</Text>
         </Flex>
-        <ProgressBar Value={50} className="mt-2" />
+        <ProgressBar value={50} className="mt-2" />
     </Card>
   )
 }
