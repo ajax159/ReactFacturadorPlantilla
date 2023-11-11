@@ -10,7 +10,7 @@ import { SplitButton } from 'primereact/splitbutton';
 import { Toast } from 'primereact/toast';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { confirmPopup } from 'primereact/confirmpopup';
+import { AutoComplete } from "primereact/autocomplete";
 import './styles/Asignaciones.css';
 import 'primeicons/primeicons.css';
 
@@ -27,7 +27,30 @@ const Asignacion = () => {
   const [buttonIcon, setButtonIcon] = useState('pi pi-plus');
   const [buttonestado, setButtonEstado] = useState('crear');
   const [idCajauserMap, setIdCajauserMap] = useState({});
+  const [datos, setDatos] = useState([]);
+  const [selectedDato, setSelectedDato] = useState(null);
 
+  
+
+  const buscar  = async (event) => {
+    fetch(`http://localhost:5000/cajausuario/usuario?idcaja=4`)
+    .then((response) => response.json())
+    .then((cjusuariobusc) => {
+      setDatos(cjusuariobusc);
+      let _filteredDatos;
+      if (!event.query.trim().length) {
+        _filteredDatos = [...cjusuariobusc];
+      } else {
+        _filteredDatos = cjusuariobusc.filter((datos) => {
+          return datos.usuNombrecompleto.toLowerCase().startsWith(event.query.toLowerCase());
+        });
+      }
+      setDatos(_filteredDatos);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+}
 
 
   const handleClick = async (cajId) => {
@@ -42,7 +65,6 @@ const Asignacion = () => {
         newIdCajauserMap[iduser] = iduser;
         return item;
       });
-    
       setIdCajauserMap(newIdCajauserMap);
       setcajaUsuario(cjusuario)
     } catch (error) {
@@ -272,10 +294,7 @@ const Asignacion = () => {
               <div className='flex'>
                 <div className='w-full m-2'>
                   <Card title="Usuarios" color='blue'>
-                    <span className="p-input-icon-left w-auto">
-                      <i className="pi pi-search" />
-                      <InputText placeholder="Agregar" className='flex w-auto' />
-                    </span>
+                  <AutoComplete field="usuNombrecompleto" value={selectedDato} suggestions={datos} completeMethod={buscar} onChange={(e) => setSelectedDato(e.value)} dropdown />
                     <DataTable value={cajaUsuario} className="w-auto">
                       <Column field="usuNombrecompleto" header="Usuarios"></Column>
                       <Column body={actionBodyTemplate} />
