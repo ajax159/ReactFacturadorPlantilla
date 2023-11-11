@@ -1,4 +1,6 @@
-
+html{
+  background-color: #eff3f9;
+}
 
 .App {
   text-align: center;
@@ -15,16 +17,7 @@
   }
 }
 
-.p-dropdown-label{
-  font-size: 12px !important;
 
-}
-.p-dropdown {
-  align-items: center;
-  justify-content: center;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
 
 .App-header {
   background-color: #282c34;
