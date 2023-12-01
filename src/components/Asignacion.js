@@ -16,8 +16,29 @@ import 'primeicons/primeicons.css';
 
 import React, { useEffect, useState } from 'react'
 
+  const useBuscarc = () =>{
+    const [datos, setDatos] = useState([]);
+    const buscarC = async (event) => {
+      fetch(`http://localhost:5000/cajausuario/usuarionot?idcaja=4`)
+        .then((response) => response.json())
+        .then((cjusuariobusc) => {
+          let _fildDatos;
+          _fildDatos = cjusuariobusc.filter((datos) => {
+            return datos.usuNombrecompleto.toLowerCase().includes(event.query.toLowerCase());
+          });
+          setDatos(_fildDatos);
+        })
+        .catch((error) => {
+          console.error('Error data:', error);
+        });
+    };
+    return {
+      datos,
+      buscarC
+    }
+  }
 const Asignacion = () => {
-
+  const cajaUserB = useBuscarc()
   const [cajasData, setCajasData] = useState([]);
   const [gecid, setGecid] = useState('0');
   const [empid, setEmpid] = useState('0');
@@ -27,24 +48,10 @@ const Asignacion = () => {
   const [buttonIcon, setButtonIcon] = useState('pi pi-plus');
   const [buttonestado, setButtonEstado] = useState('crear');
   const [idCajauserMap, setIdCajauserMap] = useState({});
-  const [idCaja, setIdCaja] = useState({});
-  const [datos, setDatos] = useState([]);
+  //const [idCaja, setIdCaja] = useState();
+  
   const [selectedDato, setSelectedDato] = useState(null);
 
-  const buscarCajaUsuario = async (event) => {
-    fetch(`http://localhost:5000/cajausuario/usuarionot?idcaja=${idCaja}`)
-      .then((response) => response.json())
-      .then((cjusuariobusc) => {
-        let _fildDatos;
-        _fildDatos = cjusuariobusc.filter((datos) => {
-          return datos.usuNombrecompleto.toLowerCase().includes(event.query.toLowerCase());
-        });
-        setDatos(_fildDatos);
-      })
-      .catch((error) => {
-        console.error('Error data:', error);
-      });
-  };
 
 const addUsuario = () => {
   const userid = selectedDato.usuId;
@@ -82,7 +89,6 @@ const addUsuario = () => {
 };
 
   const handleClick = async (cajId) => {
-    setIdCaja(cajId);
     document.getElementById('cajaid').value = cajId
     try {
       const apiCajaUsuario = await fetch(`http://localhost:5000/cajausuario/usuario?idcaja=${cajId}`);
@@ -104,9 +110,9 @@ const addUsuario = () => {
       console.error('Error fetching data:', error);
     }
     try {
-      const apiCajaSerie = await fetch(`http://localhost:5000/cajaserie/listarserie/${cajId}`);
+      const apiCajaSerie = await fetch(`http://localhost:5000/cajaserie/serie?idcaja=${cajId}`);
       const cjserie = await apiCajaSerie.json();
-      setCajaSerie(cjserie.data);
+      setCajaSerie(cjserie);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -192,7 +198,6 @@ const addUsuario = () => {
       updatedBy: document.getElementById('iduser').value,
     };
     const idcaja = document.getElementById('cajaid').value
-    console.log(buttonestado);
     fetch(`http://localhost:5000/caja/${idcaja}`, {
       method: 'PUT',
       headers: {
@@ -289,6 +294,7 @@ const addUsuario = () => {
   ];
 
   return (
+    
     <div>
       <ConfirmDialog />
       <input type="hidden" value="1" id='gecid' name='gecid' />
@@ -324,8 +330,8 @@ const addUsuario = () => {
                     <AutoComplete 
                   field="usuNombrecompleto" 
                   value={selectedDato} 
-                  suggestions={datos} 
-                  completeMethod={buscarCajaUsuario} 
+                  suggestions={cajaUserB.datos} 
+                  completeMethod={cajaUserB.buscarC} 
                   onChange={(e) => setSelectedDato(e.value)} 
                   dropdown className='pr-1'/>
                     <Button onClick={addUsuario} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning'/>
@@ -338,10 +344,11 @@ const addUsuario = () => {
                 </div>
                 <div className='w-full m-2'>
                   <Card title="Serie">
-                    <span className="p-input-icon-left">
-                      <i className="pi pi-search" />
-                      <InputText placeholder="Agregar" />
-                    </span>
+                    <div className='flex'>
+                  <AutoComplete
+                  dropdown className='pr-1'/>
+                  <Button onClick={addUsuario} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning'/>
+                    </div>
                     <DataTable value={cajaSerie}>
                       <Column field="serSerie" header="Serie"></Column>
                       <Column body={actionBodyTemplate} />
@@ -350,10 +357,11 @@ const addUsuario = () => {
                 </div>
                 <div className='w-full m-2'>
                   <Card title="Tipo Documento">
-                    <span className="p-input-icon-left">
-                      <i className="pi pi-search" />
-                      <InputText placeholder="Agregar" />
-                    </span>
+                  <div className='flex'>
+                  <AutoComplete
+                  dropdown className='pr-1'/>
+                  <Button onClick={addUsuario} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning'/>
+                    </div>
                     <DataTable value={cajaDocumento}>
                       <Column field="tpdDescripcion" header="Documento" ></Column>
                       <Column body={actionBodyTemplate} />
