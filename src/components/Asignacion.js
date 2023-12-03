@@ -15,30 +15,53 @@ import './styles/Asignaciones.css';
 import 'primeicons/primeicons.css';
 
 import React, { useEffect, useState } from 'react'
-
-  const useBuscarc = () =>{
-    const [datos, setDatos] = useState([]);
-    const buscarC = async (event) => {
-      fetch(`http://localhost:5000/cajausuario/usuarionot?idcaja=4`)
-        .then((response) => response.json())
-        .then((cjusuariobusc) => {
-          let _fildDatos;
-          _fildDatos = cjusuariobusc.filter((datos) => {
-            return datos.usuNombrecompleto.toLowerCase().includes(event.query.toLowerCase());
-          });
-          setDatos(_fildDatos);
-        })
-        .catch((error) => {
-          console.error('Error data:', error);
-        });
-    };
-    return {
-      datos,
-      buscarC
-    }
+const useIdCaja = () => {
+  const [idcaja, setIdcaja] = useState('0');
+  return {
+    idcaja,
+    setIdcaja
   }
+}
+
+const useBuscarc = () => {
+  const [datos, setDatos] = useState([]);
+  const idcaj = useIdCaja.idCaja;
+  const buscarC = async (idCaja, event, nomBusc) => {
+    fetch(`${idCaja}${idcaj}`)
+      .then((response) => response.json())
+      .then((cjusuariobusc) => {
+        const atrJson = nomBusc;
+        let _fildDatos;
+        _fildDatos = cjusuariobusc.filter((data) => {
+          return data[atrJson].toLowerCase().includes(event.query.toLowerCase());
+        });
+        setDatos(_fildDatos);
+      })
+      .catch((error) => {
+        console.error('Error data:', error);
+      });
+  };
+  return {
+    datos,
+    buscarC
+  }
+}
+
+const useDatosC = () => {
+  const [selectedDato, setSelectedDato] = useState(null);
+  return {
+    selectedDato,
+    setSelectedDato
+  }
+}
 const Asignacion = () => {
+  const idCajaPrime = useIdCaja()
   const cajaUserB = useBuscarc()
+  const cajaSerB = useBuscarc()
+  const cajaTdocB = useBuscarc()
+  const cajaUserD = useDatosC()
+  const cajaSerD = useDatosC()
+  const cajaTdocD = useDatosC()
   const [cajasData, setCajasData] = useState([]);
   const [gecid, setGecid] = useState('0');
   const [empid, setEmpid] = useState('0');
@@ -48,57 +71,55 @@ const Asignacion = () => {
   const [buttonIcon, setButtonIcon] = useState('pi pi-plus');
   const [buttonestado, setButtonEstado] = useState('crear');
   const [idCajauserMap, setIdCajauserMap] = useState({});
-  //const [idCaja, setIdCaja] = useState();
-  
   const [selectedDato, setSelectedDato] = useState(null);
 
 
-const addUsuario = () => {
-  const userid = selectedDato.usuId;
-  const cajId = document.getElementById('cajaid').value
-  const data = {
-    facUsuarioUsuId: userid,
-    facCajaCajId: cajId,
-    createdBy: document.getElementById('iduser').value,
-    gecId: document.getElementById('gecid').value,
-    empId: document.getElementById('empid').value,
-    glbEstadoEstId: 1
-  }
-  fetch(`http://localhost:5000/cajausuario/crear`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => {
-      if (response.ok) {
-        handleClick(cajId);
-        setSelectedDato(null);
-        toast.current.show({ severity: 'success', summary: 'Creada', detail: 'Usuario agregado Correctamente' });
-      } else {
-        response.json().then((data) => {
-          const servidor = data.errors[0].defaultMessage;
-          toast.current.show({ severity: 'info', summary: 'Error', detail: servidor });
-        });
-      }
+
+  const addUsuario = () => {
+    const userid = selectedDato.usuId;
+    const cajId = document.getElementById('cajaid').value
+    const data = {
+      facUsuarioUsuId: userid,
+      facCajaCajId: cajId,
+      createdBy: document.getElementById('iduser').value,
+      gecId: document.getElementById('gecid').value,
+      empId: document.getElementById('empid').value,
+      glbEstadoEstId: 1
+    }
+    fetch(`http://localhost:5000/cajausuario/crear`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     })
-    .catch((error) => {
-      console.log(error);
-    });
-};
+      .then((response) => {
+        if (response.ok) {
+          handleClick(cajId);
+          setSelectedDato(null);
+          toast.current.show({ severity: 'success', summary: 'Creada', detail: 'Usuario agregado Correctamente' });
+        } else {
+          response.json().then((data) => {
+            const servidor = data.errors[0].defaultMessage;
+            toast.current.show({ severity: 'info', summary: 'Error', detail: servidor });
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const handleClick = async (cajId) => {
-    document.getElementById('cajaid').value = cajId
     try {
       const apiCajaUsuario = await fetch(`http://localhost:5000/cajausuario/usuario?idcaja=${cajId}`);
       const cjusuario = await apiCajaUsuario.json();
-    setcajaUsuario(cjusuario);
-    const newIdCajauserMap = cjusuario.reduce((map, item) => {
-      map[item.cjuId] = item.cjuId;
-      return map;
-    }, {});
-    setIdCajauserMap(newIdCajauserMap);
+      setcajaUsuario(cjusuario);
+      const newIdCajauserMap = cjusuario.reduce((map, item) => {
+        map[item.cjuId] = item.cjuId;
+        return map;
+      }, {});
+      setIdCajauserMap(newIdCajauserMap);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -141,7 +162,7 @@ const addUsuario = () => {
         .catch((error) => {
           console.log(error);
         });
-  }
+    }
     confirmDialog({
       message: '¿Eliminar usuario?',
       header: 'Eliminar Usuario',
@@ -149,7 +170,7 @@ const addUsuario = () => {
       acceptClassName: 'p-button-danger',
       position: 'left',
       accept
-  });
+    });
   }
 
   const actionBodyTemplate = (rowData) => {
@@ -294,12 +315,12 @@ const addUsuario = () => {
   ];
 
   return (
-    
+
     <div>
       <ConfirmDialog />
       <input type="hidden" value="1" id='gecid' name='gecid' />
       <input type="hidden" value="1" id='empid' name='empid' />
-      <input type="hidden" id='cajaid' name='cajaid' />
+      <input type="hidden" id='cajaid' name='cajaid' value='4' />
       <input type="hidden" value='1' id='iduser' name='iduser' />
       <input type="hidden" id='idusuario' name='idusuario' />
       <Panel header="Asignacion de Documentos" className='px-1 pt-2' toggleable>
@@ -315,7 +336,8 @@ const addUsuario = () => {
                 <div className="pb-2" key={data.cajId} id="div">
                   <div className="card flex justify-content-center" id={data.cajId}>
                     <Toast ref={toast}></Toast>
-                    <SplitButton className='w-full' label={data.cajDescripcion} icon="pi pi-box" onClick={() => handleClick(data.cajId)} model={items(data.cajDescripcion, data.cajId)} severity="secondary" raised text />
+                    <SplitButton className='w-full' label={data.cajDescripcion} icon="pi pi-box" onClick={() => { handleClick(data.cajId); idCajaPrime.setIdcaja(data.cajId) }}
+                      model={items(data.cajDescripcion, data.cajId)} severity="secondary" raised text />
                   </div>
                 </div>
               ))}
@@ -327,14 +349,14 @@ const addUsuario = () => {
                 <div className='w-full m-2'>
                   <Card title="Usuarios" color='blue'>
                     <div className='flex'>
-                    <AutoComplete 
-                  field="usuNombrecompleto" 
-                  value={selectedDato} 
-                  suggestions={cajaUserB.datos} 
-                  completeMethod={cajaUserB.buscarC} 
-                  onChange={(e) => setSelectedDato(e.value)} 
-                  dropdown className='pr-1'/>
-                    <Button onClick={addUsuario} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning'/>
+                      <AutoComplete
+                        field="usuNombrecompleto"
+                        value={cajaUserD.selectedDato}
+                        suggestions={cajaUserB.datos}
+                        completeMethod={(event) => cajaUserB.buscarC(`http://localhost:5000/cajausuario/usuarionot?idcaja=`, event, 'usuNombrecompleto')}
+                        onChange={(e) => cajaUserD.setSelectedDato(e.value)}
+                        dropdown className='pr-1' />
+                      <Button onClick={addUsuario} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={cajaUsuario} className="w-auto">
                       <Column field="usuNombrecompleto" header="Usuarios"></Column>
@@ -345,9 +367,14 @@ const addUsuario = () => {
                 <div className='w-full m-2'>
                   <Card title="Serie">
                     <div className='flex'>
-                  <AutoComplete
-                  dropdown className='pr-1'/>
-                  <Button onClick={addUsuario} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning'/>
+                      <AutoComplete
+                        field="serSerie"
+                        value={cajaSerD.selectedDato}
+                        suggestions={cajaSerB.datos}
+                        completeMethod={(event) => cajaSerB.buscarC(`http://127.0.0.1:5000/cajaserie/notserie?idcaja=`, event, 'serSerie')}
+                        onChange={(e) => cajaSerD.setSelectedDato(e.value)}
+                        dropdown className='pr-1' />
+                      <Button onClick={addUsuario} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={cajaSerie}>
                       <Column field="serSerie" header="Serie"></Column>
@@ -357,10 +384,15 @@ const addUsuario = () => {
                 </div>
                 <div className='w-full m-2'>
                   <Card title="Tipo Documento">
-                  <div className='flex'>
-                  <AutoComplete
-                  dropdown className='pr-1'/>
-                  <Button onClick={addUsuario} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning'/>
+                    <div className='flex'>
+                      <AutoComplete
+                        field="tpdDescripcion"
+                        value={cajaTdocD.selectedDato}
+                        suggestions={cajaTdocB.datos}
+                        completeMethod={(event) => cajaTdocB.buscarC(`http://127.0.0.1:5000/cajadocumento/notdocumento?idcaja=`, event, 'tpdDescripcion')}
+                        onChange={(e) => cajaTdocD.setSelectedDato(e.value)}
+                        dropdown className='pr-1' />
+                      <Button onClick={addUsuario} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={cajaDocumento}>
                       <Column field="tpdDescripcion" header="Documento" ></Column>
