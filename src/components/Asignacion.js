@@ -143,7 +143,8 @@ const useSelectCajas = () => {
     eliminarCajaData,
     selectedDato,
     setSelectedDato,
-    agregarRelacion
+    agregarRelacion,
+    toast
   }
 }
 
@@ -332,6 +333,7 @@ const Asignacion = () => {
                 <div className='w-full m-2'>
                   <Card title="Usuarios" color='blue'>
                     <div className='flex'>
+                    <Toast ref={admCajauser.toast} />
                       <AutoComplete
                         field="usuNombrecompleto"
                         value={admCajauser.selectedDato}
@@ -350,6 +352,7 @@ const Asignacion = () => {
                 <div className='w-full m-2'>
                   <Card title="Serie">
                     <div className='flex'>
+                    <Toast ref={admCajaser.toast} />
                       <AutoComplete
                         field="serSerie"
                         value={admCajaser.selectedDato}
@@ -368,6 +371,7 @@ const Asignacion = () => {
                 <div className='w-full m-2'>
                   <Card title="Tipo Documento">
                     <div className='flex'>
+                    <Toast ref={admCajadoc.toast} />
                       <AutoComplete
                         field="tpdDescripcion"
                         value={admCajadoc.selectedDato}
