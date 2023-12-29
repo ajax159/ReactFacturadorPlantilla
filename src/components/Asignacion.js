@@ -13,7 +13,7 @@ import { Column } from 'primereact/column';
 import { AutoComplete } from "primereact/autocomplete";
 import './styles/Asignaciones.css';
 import 'primeicons/primeicons.css';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 let idCajaGlobal = '0';
 
 
@@ -163,7 +163,7 @@ const Asignacion = () => {
   const [buttonestado, setButtonEstado] = useState('crear');
 
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const newGecid = document.getElementById('gecid').value;
     const newEmpid = document.getElementById('empid').value;
     setGecid(newGecid);
@@ -175,7 +175,7 @@ const Asignacion = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
     }
-  };
+  }, [gecid, empid]); 
   const accionCaja = () => {
     const cajaDes = document.getElementById('buscarcaja').value;
     const cajaid = document.getElementById('cajaid').value;
@@ -264,9 +264,9 @@ const Asignacion = () => {
   }
 
 
-   useEffect(() => {
+  useEffect(() => {
     fetchData();
-  });
+  }, [fetchData]);
 
   const toast = useRef(null);
   const items = (cajDescripcion, cajId) => [
