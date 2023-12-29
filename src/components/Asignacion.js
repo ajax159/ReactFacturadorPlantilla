@@ -162,14 +162,12 @@ const Asignacion = () => {
   const [buttonIcon, setButtonIcon] = useState('pi pi-plus');
   const [buttonestado, setButtonEstado] = useState('crear');
 
-  const getInputs = () => {
+
+  const fetchData = async () => {
     const newGecid = document.getElementById('gecid').value;
     const newEmpid = document.getElementById('empid').value;
     setGecid(newGecid);
     setEmpid(newEmpid);
-  };
-
-  const fetchData = async () => {
     try {
       const response = await fetch(`https://serviciofact.mercelab.com/caja/listar/${gecid}/${empid}`);
       const data = await response.json();
@@ -265,10 +263,6 @@ const Asignacion = () => {
     setButtonIcon('pi pi-plus');
   }
 
-
-  useEffect(() => {
-    getInputs()
-  });
 
    useEffect(() => {
     fetchData();
