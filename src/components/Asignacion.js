@@ -270,9 +270,9 @@ const Asignacion = () => {
     getInputs();
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [gecid, empid]);
+  // useEffect(() => {
+  //   fetchData();
+  // }, [gecid, empid, fetchData]);
   //_--------------------------------------------------------------------------------}
   const toast = useRef(null);
   const items = (cajDescripcion, cajId) => [
