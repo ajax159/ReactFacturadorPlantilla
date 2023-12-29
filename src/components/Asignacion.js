@@ -99,7 +99,7 @@ const useSelectCajas = () => {
   const eliminarCajaData = (idCaja, cjapi, cjIdData, cjuapi) => {
     const cajId = idCajaGlobal;
     const accept = () => {
-      fetch(`${cjapi}${idCaja}`, {
+      fetch(`${apiroute}${cjapi}${idCaja}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
