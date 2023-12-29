@@ -161,6 +161,7 @@ const Asignacion = () => {
   const [empid, setEmpid] = useState('0');
   const [buttonIcon, setButtonIcon] = useState('pi pi-plus');
   const [buttonestado, setButtonEstado] = useState('crear');
+  const [nomcaja, setNomCaja] = useState('Caja');
 
 
   const fetchData = useCallback(async () => {
@@ -314,7 +315,7 @@ const Asignacion = () => {
                   <div className="card flex justify-content-center" id={data.cajId}>
                     <Toast ref={toast}></Toast>
                     <SplitButton className='w-full' label={data.cajDescripcion} icon="pi pi-box" 
-                    onClick={() => {admCajauser.getCajadata('https://serviciofact.mercelab.com/cajausuario/usuario?idcaja=','cjuId',data.cajId);admCajaser.getCajadata('https://serviciofact.mercelab.com/cajaserie/serie?idcaja=','cjsId',data.cajId);admCajadoc.getCajadata('https://serviciofact.mercelab.com/cajadocumento/documento?idcaja=','cjdId',data.cajId) }}
+                    onClick={() => {admCajauser.getCajadata('https://serviciofact.mercelab.com/cajausuario/usuario?idcaja=','cjuId',data.cajId);admCajaser.getCajadata('https://serviciofact.mercelab.com/cajaserie/serie?idcaja=','cjsId',data.cajId);admCajadoc.getCajadata('https://serviciofact.mercelab.com/cajadocumento/documento?idcaja=','cjdId',data.cajId);setNomCaja(data.cajDescripcion) }}
                     model={items(data.cajDescripcion, data.cajId)} severity="secondary" raised text />
                   </div>
                 </div>
@@ -322,7 +323,7 @@ const Asignacion = () => {
             </div>
           </div>
           <div id='Segmento2' className='pl-6 w-full'>
-            <Fieldset legend="Caja 1">
+            <Fieldset legend={nomcaja}>
               <div className='flex'>
                 <div className='w-full m-2'>
                   <Card title="Usuarios" color='blue'>
