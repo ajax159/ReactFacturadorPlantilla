@@ -82,7 +82,7 @@ const useSelectCajas = () => {
       .then((response) => {
         if (response.ok) {
           setSelectedDato(null);
-          getCajadata(urlApi, idItem, cajId); //const getCajadata = async (urlApi, idItem, cajId) //'cjuId', 'http://localhost:5000/cajausuario/','http://localhost:5000/cajausuario/usuario?idcaja='
+          getCajadata(urlApi, idItem, cajId); //const getCajadata = async (urlApi, idItem, cajId) //'cjuId', 'http://190.223.58.252:5000/cajausuario/','http://190.223.58.252:5000/cajausuario/usuario?idcaja='
           toast.current.show({ severity: 'success', summary: 'Creada', detail: 'Usuario agregado Correctamente' });
         } else {
           response.json().then((data) => {
@@ -171,7 +171,7 @@ const Asignacion = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/caja/listar/${gecid}/${empid}`);
+      const response = await fetch(`http://190.223.58.252:5000/caja/listar/${gecid}/${empid}`);
       const data = await response.json();
       setCajasData(data.data);
     } catch (error) {
@@ -202,7 +202,7 @@ const Asignacion = () => {
       updatedBy: document.getElementById('iduser').value,
     };
     const idcaja = document.getElementById('cajaid').value
-    fetch(`http://localhost:5000/caja/${idcaja}`, {
+    fetch(`http://190.223.58.252:5000/caja/${idcaja}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -235,7 +235,7 @@ const Asignacion = () => {
       glbEstadoEstId: 1
     }
 
-    fetch(`http://localhost:5000/caja/crear`, {
+    fetch(`http://190.223.58.252:5000/caja/crear`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -267,12 +267,12 @@ const Asignacion = () => {
 
 
   useEffect(() => {
-    getInputs();
-  }, []);
+    getInputs()
+  });
 
    useEffect(() => {
     fetchData();
-  }, [gecid, empid]);
+  });
 
   const toast = useRef(null);
   const items = (cajDescripcion, cajId) => [
@@ -320,7 +320,7 @@ const Asignacion = () => {
                   <div className="card flex justify-content-center" id={data.cajId}>
                     <Toast ref={toast}></Toast>
                     <SplitButton className='w-full' label={data.cajDescripcion} icon="pi pi-box" 
-                    onClick={() => {admCajauser.getCajadata('http://localhost:5000/cajausuario/usuario?idcaja=','cjuId',data.cajId);admCajaser.getCajadata('http://localhost:5000/cajaserie/serie?idcaja=','cjsId',data.cajId);admCajadoc.getCajadata('http://localhost:5000/cajadocumento/documento?idcaja=','cjdId',data.cajId) }}
+                    onClick={() => {admCajauser.getCajadata('http://190.223.58.252:5000/cajausuario/usuario?idcaja=','cjuId',data.cajId);admCajaser.getCajadata('http://190.223.58.252:5000/cajaserie/serie?idcaja=','cjsId',data.cajId);admCajadoc.getCajadata('http://190.223.58.252:5000/cajadocumento/documento?idcaja=','cjdId',data.cajId) }}
                     model={items(data.cajDescripcion, data.cajId)} severity="secondary" raised text />
                   </div>
                 </div>
@@ -338,14 +338,14 @@ const Asignacion = () => {
                         field="usuNombrecompleto"
                         value={admCajauser.selectedDato}
                         suggestions={cajaUserB.datos}
-                        completeMethod={(event) => cajaUserB.buscarC(`http://localhost:5000/cajausuario/usuarionot?idcaja=`, event, 'usuNombrecompleto')}
+                        completeMethod={(event) => cajaUserB.buscarC(`http://190.223.58.252:5000/cajausuario/usuarionot?idcaja=`, event, 'usuNombrecompleto')}
                         onChange={(e) => admCajauser.setSelectedDato(e.value)}
                         dropdown className='pr-1' />
-                      <Button onClick={() => admCajauser.agregarRelacion('usuId','facUsuarioUsuId','http://localhost:5000/cajausuario/crear','http://localhost:5000/cajausuario/usuario?idcaja=','cjuId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
+                      <Button onClick={() => admCajauser.agregarRelacion('usuId','facUsuarioUsuId','http://190.223.58.252:5000/cajausuario/crear','http://190.223.58.252:5000/cajausuario/usuario?idcaja=','cjuId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={admCajauser.cajaDato} className="w-auto">
                       <Column field="usuNombrecompleto" header="Usuarios"></Column>
-                      <Column body={(rowData) => admCajauser.accionCaja(rowData, 'cjuId', 'http://localhost:5000/cajausuario/','http://localhost:5000/cajausuario/usuario?idcaja=')} />
+                      <Column body={(rowData) => admCajauser.accionCaja(rowData, 'cjuId', 'http://190.223.58.252:5000/cajausuario/','http://190.223.58.252:5000/cajausuario/usuario?idcaja=')} />
                     </DataTable>
                   </Card>
                 </div>
@@ -357,14 +357,14 @@ const Asignacion = () => {
                         field="serSerie"
                         value={admCajaser.selectedDato}
                         suggestions={cajaSerB.datos}
-                        completeMethod={(event) => cajaSerB.buscarC(`http://127.0.0.1:5000/cajaserie/notserie?idcaja=`, event, 'serSerie')}
+                        completeMethod={(event) => cajaSerB.buscarC(`http://190.223.58.252:5000/cajaserie/notserie?idcaja=`, event, 'serSerie')}
                         onChange={(e) => admCajaser.setSelectedDato(e.value)}
                         dropdown className='pr-1' />
-                      <Button onClick={() => admCajaser.agregarRelacion('serId','facSerieSerId','http://localhost:5000/cajaserie/crear','http://localhost:5000/cajaserie/serie?idcaja=', 'cjsId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
+                      <Button onClick={() => admCajaser.agregarRelacion('serId','facSerieSerId','http://190.223.58.252:5000/cajaserie/crear','http://190.223.58.252:5000/cajaserie/serie?idcaja=', 'cjsId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={admCajaser.cajaDato}>
                       <Column field="serSerie" header="Serie"></Column>
-                      <Column body={(rowData) => admCajaser.accionCaja(rowData, 'cjsId', 'http://localhost:5000/cajaserie/','http://localhost:5000/cajaserie/serie?idcaja=')} />
+                      <Column body={(rowData) => admCajaser.accionCaja(rowData, 'cjsId', 'http://190.223.58.252:5000/cajaserie/','http://190.223.58.252:5000/cajaserie/serie?idcaja=')} />
                     </DataTable>
                   </Card>
                 </div>
@@ -376,14 +376,14 @@ const Asignacion = () => {
                         field="tpdDescripcion"
                         value={admCajadoc.selectedDato}
                         suggestions={cajaTdocB.datos}
-                        completeMethod={(event) => cajaTdocB.buscarC(`http://127.0.0.1:5000/cajadocumento/notdocumento?idcaja=`, event, 'tpdDescripcion')}
+                        completeMethod={(event) => cajaTdocB.buscarC(`http://190.223.58.252:5000/cajadocumento/notdocumento?idcaja=`, event, 'tpdDescripcion')}
                         onChange={(e) => admCajadoc.setSelectedDato(e.value)}
                         dropdown className='pr-1' />
-                      <Button onClick={() => admCajadoc.agregarRelacion('tpdId','facTipoDocumentoTpdId','http://localhost:5000/cajadocumento/crear','http://localhost:5000/cajadocumento/documento?idcaja=', 'cjdId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
+                      <Button onClick={() => admCajadoc.agregarRelacion('tpdId','facTipoDocumentoTpdId','http://190.223.58.252:5000/cajadocumento/crear','http://190.223.58.252:5000/cajadocumento/documento?idcaja=', 'cjdId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={admCajadoc.cajaDato}>
                       <Column field="tpdDescripcion" header="Documento" ></Column>
-                      <Column body={(rowData) => admCajadoc.accionCaja(rowData, 'cjdId', 'http://localhost:5000/cajadocumento/','http://localhost:5000/cajadocumento/documento?idcaja=')} />
+                      <Column body={(rowData) => admCajadoc.accionCaja(rowData, 'cjdId', 'http://190.223.58.252:5000/cajadocumento/','http://190.223.58.252:5000/cajadocumento/documento?idcaja=')} />
                     </DataTable>
                   </Card>
                 </div>
