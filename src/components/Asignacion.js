@@ -15,13 +15,14 @@ import './styles/Asignaciones.css';
 import 'primeicons/primeicons.css';
 import React, { useEffect, useState, useCallback } from 'react'
 let idCajaGlobal = '0';
+let apiroute = 'https://serviciofact.mercelab.com'
 
 
 const useBuscarc = () => {
   const [datos, setDatos] = useState([]);
   const idcaj = idCajaGlobal
   const buscarC = async (idCaja, event, nomBusc) => {
-    fetch(`${idCaja}${idcaj}`)
+    fetch(`${apiroute}${idCaja}${idcaj}`)
       .then((response) => response.json())
       .then((cjusuariobusc) => {
         const atrJson = nomBusc;
@@ -49,7 +50,7 @@ const useSelectCajas = () => {
   const getCajadata = async (urlApi, idItem, cajId) => {
     idCajaGlobal = cajId
     try {
-      const apiCaja = await fetch(`${urlApi}${cajId}`);
+      const apiCaja = await fetch(`${apiroute}${urlApi}${cajId}`);
       const cjdata = await apiCaja.json();
       setcajaDato(cjdata);
       const newIdCajaData = cjdata.reduce((map, item) => {
@@ -72,7 +73,7 @@ const useSelectCajas = () => {
       empId: '1',
       glbEstadoEstId: 1
     }
-    fetch(`${apiEp}`, {
+    fetch(`${apiroute}${apiEp}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -170,7 +171,7 @@ const Asignacion = () => {
     setGecid(newGecid);
     setEmpid(newEmpid);
     try {
-      const response = await fetch(`https://serviciofact.mercelab.com/caja/listar/${gecid}/${empid}`);
+      const response = await fetch(`${apiroute}/caja/listar/${gecid}/${empid}`);
       const data = await response.json();
       setCajasData(data.data);
     } catch (error) {
@@ -201,7 +202,7 @@ const Asignacion = () => {
       updatedBy: document.getElementById('iduser').value,
     };
     const idcaja = document.getElementById('cajaid').value
-    fetch(`https://serviciofact.mercelab.com/caja/${idcaja}`, {
+    fetch(`${apiroute}/caja/${idcaja}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -234,7 +235,7 @@ const Asignacion = () => {
       glbEstadoEstId: 1
     }
 
-    fetch(`https://serviciofact.mercelab.com/caja/crear`, {
+    fetch(`${apiroute}/caja/crear`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -315,7 +316,7 @@ const Asignacion = () => {
                   <div className="card flex justify-content-center" id={data.cajId}>
                     <Toast ref={toast}></Toast>
                     <SplitButton className='w-full' label={data.cajDescripcion} icon="pi pi-box" 
-                    onClick={() => {admCajauser.getCajadata('https://serviciofact.mercelab.com/cajausuario/usuario?idcaja=','cjuId',data.cajId);admCajaser.getCajadata('https://serviciofact.mercelab.com/cajaserie/serie?idcaja=','cjsId',data.cajId);admCajadoc.getCajadata('https://serviciofact.mercelab.com/cajadocumento/documento?idcaja=','cjdId',data.cajId);setNomCaja(data.cajDescripcion) }}
+                    onClick={() => {admCajauser.getCajadata('/cajausuario/usuario?idcaja=','cjuId',data.cajId);admCajaser.getCajadata('/cajaserie/serie?idcaja=','cjsId',data.cajId);admCajadoc.getCajadata('/cajadocumento/documento?idcaja=','cjdId',data.cajId);setNomCaja(data.cajDescripcion) }}
                     model={items(data.cajDescripcion, data.cajId)} severity="secondary" raised text />
                   </div>
                 </div>
@@ -333,14 +334,14 @@ const Asignacion = () => {
                         field="usuNombrecompleto"
                         value={admCajauser.selectedDato}
                         suggestions={cajaUserB.datos}
-                        completeMethod={(event) => cajaUserB.buscarC(`https://serviciofact.mercelab.com/cajausuario/usuarionot?idcaja=`, event, 'usuNombrecompleto')}
+                        completeMethod={(event) => cajaUserB.buscarC(`/cajausuario/usuarionot?idcaja=`, event, 'usuNombrecompleto')}
                         onChange={(e) => admCajauser.setSelectedDato(e.value)}
                         dropdown className='pr-1' />
-                      <Button onClick={() => admCajauser.agregarRelacion('usuId','facUsuarioUsuId','https://serviciofact.mercelab.com/cajausuario/crear','https://serviciofact.mercelab.com/cajausuario/usuario?idcaja=','cjuId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
+                      <Button onClick={() => admCajauser.agregarRelacion('usuId','facUsuarioUsuId','/cajausuario/crear','/cajausuario/usuario?idcaja=','cjuId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={admCajauser.cajaDato} className="w-auto">
                       <Column field="usuNombrecompleto" header="Usuarios"></Column>
-                      <Column body={(rowData) => admCajauser.accionCaja(rowData, 'cjuId', 'https://serviciofact.mercelab.com/cajausuario/','https://serviciofact.mercelab.com/cajausuario/usuario?idcaja=')} />
+                      <Column body={(rowData) => admCajauser.accionCaja(rowData, 'cjuId', '/cajausuario/','/cajausuario/usuario?idcaja=')} />
                     </DataTable>
                   </Card>
                 </div>
@@ -352,14 +353,14 @@ const Asignacion = () => {
                         field="serSerie"
                         value={admCajaser.selectedDato}
                         suggestions={cajaSerB.datos}
-                        completeMethod={(event) => cajaSerB.buscarC(`https://serviciofact.mercelab.com/cajaserie/notserie?idcaja=`, event, 'serSerie')}
+                        completeMethod={(event) => cajaSerB.buscarC(`/cajaserie/notserie?idcaja=`, event, 'serSerie')}
                         onChange={(e) => admCajaser.setSelectedDato(e.value)}
                         dropdown className='pr-1' />
-                      <Button onClick={() => admCajaser.agregarRelacion('serId','facSerieSerId','https://serviciofact.mercelab.com/cajaserie/crear','https://serviciofact.mercelab.com/cajaserie/serie?idcaja=', 'cjsId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
+                      <Button onClick={() => admCajaser.agregarRelacion('serId','facSerieSerId','/cajaserie/crear','/cajaserie/serie?idcaja=', 'cjsId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={admCajaser.cajaDato}>
                       <Column field="serSerie" header="Serie"></Column>
-                      <Column body={(rowData) => admCajaser.accionCaja(rowData, 'cjsId', 'https://serviciofact.mercelab.com/cajaserie/','https://serviciofact.mercelab.com/cajaserie/serie?idcaja=')} />
+                      <Column body={(rowData) => admCajaser.accionCaja(rowData, 'cjsId', '/cajaserie/','/cajaserie/serie?idcaja=')} />
                     </DataTable>
                   </Card>
                 </div>
@@ -371,14 +372,14 @@ const Asignacion = () => {
                         field="tpdDescripcion"
                         value={admCajadoc.selectedDato}
                         suggestions={cajaTdocB.datos}
-                        completeMethod={(event) => cajaTdocB.buscarC(`https://serviciofact.mercelab.com/cajadocumento/notdocumento?idcaja=`, event, 'tpdDescripcion')}
+                        completeMethod={(event) => cajaTdocB.buscarC(`/cajadocumento/notdocumento?idcaja=`, event, 'tpdDescripcion')}
                         onChange={(e) => admCajadoc.setSelectedDato(e.value)}
                         dropdown className='pr-1' />
-                      <Button onClick={() => admCajadoc.agregarRelacion('tpdId','facTipoDocumentoTpdId','https://serviciofact.mercelab.com/cajadocumento/crear','https://serviciofact.mercelab.com/cajadocumento/documento?idcaja=', 'cjdId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
+                      <Button onClick={() => admCajadoc.agregarRelacion('tpdId','facTipoDocumentoTpdId','/cajadocumento/crear','/cajadocumento/documento?idcaja=', 'cjdId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={admCajadoc.cajaDato}>
                       <Column field="tpdDescripcion" header="Documento" ></Column>
-                      <Column body={(rowData) => admCajadoc.accionCaja(rowData, 'cjdId', 'https://serviciofact.mercelab.com/cajadocumento/','https://serviciofact.mercelab.com/cajadocumento/documento?idcaja=')} />
+                      <Column body={(rowData) => admCajadoc.accionCaja(rowData, 'cjdId', '/cajadocumento/','/cajadocumento/documento?idcaja=')} />
                     </DataTable>
                   </Card>
                 </div>
