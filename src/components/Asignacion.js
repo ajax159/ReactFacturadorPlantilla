@@ -84,11 +84,11 @@ const useSelectCajas = () => {
         if (response.ok) {
           setSelectedDato(null);
           getCajadata(urlApi, idItem, cajId); //const getCajadata = async (urlApi, idItem, cajId) //'cjuId', 'https://serviciofact.mercelab.com/cajausuario/','https://serviciofact.mercelab.com/cajausuario/usuario?idcaja='
-          toast.current.show({ severity: 'success', summary: 'Creada', detail: 'Usuario agregado Correctamente' });
+          toast.current.show({ severity: 'success', summary: 'Asignacion', detail: 'Usuario agregado Correctamente' });
         } else {
           response.json().then((data) => {
-            const servidor = data.errors[0].defaultMessage;
-            toast.current.show({ severity: 'info', summary: 'Error', detail: servidor });
+            //const servidor = data.errors[0].defaultMessage;
+            toast.current.show({ severity: 'info', summary: 'Error', detail: 'Debe seleccionar una caja' });
           });
         }
       })

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Menubar } from 'primereact/menubar';
 import { InputText } from 'primereact/inputtext';
+import { Outlet } from 'react-router-dom';
 
 export default function MenuBar() {
     
@@ -8,14 +9,21 @@ const items = [
     {
        label:'Inicio',
        icon:'pi pi-fw pi-home',
+       url: '/'
     },
     {
        label:'Caja',
        icon:'pi pi-fw pi-money-bill',
        items:[
+         {
+            label:'Asignacion de Documentos',
+            icon:'pi pi-fw pi-briefcase',
+            url: '/asignacion'
+         },
           {
              label:'Caja Diaria',
-             icon:'pi pi-fw pi-database'
+             icon:'pi pi-fw pi-database',
+             url: '/cajadiaria'
           },
           {
              label:'Resumen Caja',
@@ -123,6 +131,7 @@ const items = [
         <div className="card">
             <Menubar model={items} start={start} end={end} />
         </div>
+        <Outlet/>
     </div>
   );
 }
