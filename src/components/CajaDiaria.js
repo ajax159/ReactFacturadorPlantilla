@@ -17,7 +17,6 @@ const CajaDiaria = () => {
 
     const headerPanel = (
         <div className='prueba'>
-            <div className='headert'><h2 id='header'>Caja Diaria</h2></div>
             <div><Button id='addCaja' label="+ Agregar" className="p-button-raised p-button-text" /></div>
         </div>
     );
@@ -37,7 +36,6 @@ const CajaDiaria = () => {
         estado: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
     });
     const [globalFilterValue, setGlobalFilterValue] = useState('');
-
     const [statuses] = useState(['CERRADO', 'ABIERTO']);
 
     const getSeverity = (status) => {
@@ -50,7 +48,6 @@ const CajaDiaria = () => {
             default:
         }
     };
-    
     addLocale('es', {
         firstDayOfWeek: 1,
         showMonthAfterYear: true,
@@ -76,25 +73,25 @@ const CajaDiaria = () => {
       }, []);
     const fechaApertura = (cjusuariobusc) => {
         return cjusuariobusc.map((d) => {
-            d.mcaFechaapertura = new Date(`${d.mcaFechaapertura} UTC-5`);
-            d.mcaFechacierre = new Date(`${d.mcaFechacierre} UTC-5`);
+            d.mcaFechaapertura = new Date(d.mcaFechaapertura);
+            //d.mcaFechacierre = new Date(`${d.mcaFechacierre} UTC-5`);
             return d;
         });
     };
     const formatDate = (value) => {
-        return value.toLocaleDateString('es-ES', {
-            month: '2-digit',
+        return value.toLocaleDateString('en-EN', {
             day: '2-digit',
+            month: '2-digit',
             year: 'numeric'
         });
     };
-    const formatDatecierre = (value) => {
-        return value.toLocaleDateString('es-ES', {
-            month: '2-digit',
-            day: '2-digit',
-            year: 'numeric'
-        });
-    };
+    // const formatDatecierre = (value) => {
+    //     return value.toLocaleDateString('es-ES', {
+    //         month: '2-digit',
+    //         day: '2-digit',
+    //         year: 'numeric'
+    //     });
+    // };
     const onGlobalFilterChange = (e) => {
         const value = e.target.value;
         let _filters = { ...filters };
@@ -102,7 +99,6 @@ const CajaDiaria = () => {
         setFilters(_filters);
         setGlobalFilterValue(value);
     };
-
     const renderHeader = () => {
         return (
             <div className="flex flex-wrap gap-2 justify-content-between align-items-center">
@@ -116,31 +112,25 @@ const CajaDiaria = () => {
     const dateBodyTemplate = (rowData) => {
         return formatDate(rowData.mcaFechaapertura);
     };
-    const dateBodyTemplatecierre = (rowData) => {
-        return formatDatecierre(rowData.mcaFechacierre);
-    };
-
+    // const dateBodyTemplatecierre = (rowData) => {
+    //     return formatDatecierre(rowData.mcaFechacierre);
+    // };
     const dateFilterTemplate = (options) => {
         return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} locale='es' dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" mask="99/99/9999" />;
     };
-
     const statusBodyTemplate = (rowData) => {
         return <Tag value={rowData.estado} severity={getSeverity(rowData.estado)} />;
     };
-
     const statusFilterTemplate = (options) => {
         return <Dropdown value={options.value} options={statuses} onChange={(e) => options.filterCallback(e.value, options.index)} itemTemplate={statusItemTemplate} placeholder="Seleccionar" className="p-column-filter" showClear />;
     };
-
     const statusItemTemplate = (option) => {
         return <Tag value={option} severity={getSeverity(option)} />;
     };
     const actionBodyTemplate = () => {
         return <Button type="button" icon="pi pi-cog" rounded></Button>;
     };
-
     const header = renderHeader();
-
     /////////////////////////////////////////////////////////
     return (
         <div>
@@ -149,11 +139,11 @@ const CajaDiaria = () => {
                     <DataTable value={datos} size='small' paginator header={header} rows={10}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         rowsPerPageOptions={[10, 25, 50]} dataKey="mcaId" selectionMode="checkbox" selection={selectedDato} onSelectionChange={(e) => setSelectedDato(e.value)}
-                        filters={filters} filterDisplay="menu" globalFilterFields={['empId', 'cajDescripcion', 'usuNombrecompleto']}
+                        filters={filters} filterDisplay="menu" globalFilterFields={['empId', 'cajDescripcion', 'usuNombrecompleto','mcaFechaapertura']}
                         emptyMessage="No customers found." currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
                         <Column field="mcaFechaapertura" header="Apertura" sortable filterField="apertura" dataType="date" style={{ minWidth: '12rem' }} body={dateBodyTemplate} filter filterElement={dateFilterTemplate} />
-                        <Column field="mcaFechacierre" header="Cierre" sortable filterField="cierre" dataType="date" style={{ minWidth: '12rem' }} body={dateBodyTemplatecierre} filter filterElement={dateFilterTemplate} />
+                        {/* <Column field="mcaFechacierre" header="Cierre" sortable filterField="cierre" dataType="date" style={{ minWidth: '12rem' }} body={dateBodyTemplatecierre} filter filterElement={dateFilterTemplate} /> */}
                         <Column field="empId" header="Sucursal" sortable filter filterPlaceholder="Buscar por sucursal" style={{ minWidth: '14rem' }} />
                         <Column field="cajDescripcion" header="Caja" sortable filter filterPlaceholder="Buscar por empresa" style={{ minWidth: '14rem' }} />
                         <Column field="usuNombrecompleto" header="Encargado" sortable filter filterPlaceholder="Buscar por encargado" style={{ minWidth: '14rem' }} />
