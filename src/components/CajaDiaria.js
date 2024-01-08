@@ -13,7 +13,7 @@ import { addLocale } from 'primereact/api';
 import './styles/CajaDiaria.css';
 
 const CajaDiaria = () => {
-    let apiroute = 'https://serviciofact.mercelab.com'
+    //let apiroute = 'https://serviciofact.mercelab.com'
 
     const headerPanel = (
         <div className='prueba'>
