@@ -17,7 +17,7 @@ const CajaDiaria = () => {
 
     const headerPanel = (
         <div className='prueba'>
-            <div><Button id='addCaja' label="+ Agregar" className="p-button-raised p-button-text" /></div>
+            <h3>Caja Diaria</h3>
         </div>
     );
 
@@ -93,6 +93,7 @@ const CajaDiaria = () => {
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Buscar" />
                 </span>
+                <Button label='Aperturar Caja'></Button>
             </div>
         );
     };
@@ -127,7 +128,13 @@ const CajaDiaria = () => {
         return <Tag value={option} severity={getSeverity(option)} />;
     };
     const actionBodyTemplate = () => {
-        return <Button type="button" icon="pi pi-cog" rounded></Button>;
+        return (
+            <div className="flex gap-1 justify-content-between align-items-center">
+                <Button icon="pi pi-pencil" aria-label="Editar" size='small' style={{ width: '30px', height: '32px' }} />
+                <Button icon="pi pi-calculator" severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
+                <Button icon="pi pi-times" severity="danger" aria-label="Eliminar" style={{ width: '30px', height: '32px' }} />
+            </div>
+        );
     };
     const header = renderHeader();
     /////////////////////////////////////////////////////////
@@ -138,7 +145,7 @@ const CajaDiaria = () => {
                     <DataTable value={datos} size='small' paginator header={header} rows={10}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         rowsPerPageOptions={[10, 25, 50]} dataKey="mcaId" selectionMode="checkbox" selection={selectedDato} onSelectionChange={(e) => setSelectedDato(e.value)}
-                        filters={filters} filterDisplay="menu" globalFilterFields={['empId', 'cajDescripcion', 'usuNombrecompleto','mcaFechaapertura']}
+                        filters={filters} filterDisplay="menu" globalFilterFields={['empId', 'cajDescripcion', 'usuNombrecompleto', 'mcaFechaapertura']}
                         emptyMessage="No customers found." currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
                         <Column field="apertura" header="Apertura" sortable filterField="apertura" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate} filter filterElement={dateFilterTemplate} />
@@ -148,7 +155,7 @@ const CajaDiaria = () => {
                         <Column field="usuNombrecompleto" header="Encargado" sortable filter filterPlaceholder="Buscar por encargado" style={{ minWidth: '12rem' }} />
                         <Column field="moneda" header="Moneda" sortable filter filterPlaceholder="Buscar por moneda" style={{ minWidth: '9rem' }} />
                         <Column field="estado" header="Estado" sortable filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '9rem' }} body={statusBodyTemplate} filter filterElement={statusFilterTemplate} />
-                        <Column headerStyle={{ width: '5rem', textAlign: 'center' }} bodyStyle={{ textAlign: 'center', overflow: 'visible' }} body={actionBodyTemplate} />
+                        <Column headerStyle={{ minWidth: '4rem' }} body={actionBodyTemplate} />
                     </DataTable>
                 </div>
             </Panel>
