@@ -25,16 +25,7 @@ const CajaDiaria = () => {
     //////////////////////////////////////////////////////////
     const [datos, setDatos] = useState([]);
     const [selectedDato, setSelectedDato] = useState([]);
-    const [filters, setFilters] = useState({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        apertura: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-        cierre: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-        empId: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        cajDescripcion: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        usuNombrecompleto: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        moneda: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        estado: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
-    });
+    const [filters, setFilters] = useState(null);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [statuses] = useState(['CERRADO', 'ABIERTO']);
 
@@ -60,38 +51,34 @@ const CajaDiaria = () => {
         clear: 'Limpiar'
     });
     useEffect(() => {
-        const fetchData = async () => {
-          try {
+        const getFetch = async () => {
             const response = await fetch('https://serviciofact.mercelab.com/movimientocaja/listarmovcaja/1/1');
-            const jsonData = await response.json();
-            setDatos(fechaApertura(jsonData))
-          } catch (error) {
-            console.log('error')
-          }
-        };
-        fetchData();
-      }, []);
-    const fechaApertura = (cjusuariobusc) => {
-        return cjusuariobusc.map((d) => {
-            d.mcaFechaapertura = new Date(d.mcaFechaapertura);
-            //d.mcaFechacierre = new Date(`${d.mcaFechacierre} UTC-5`);
-            return d;
-        });
-    };
+            let responseJSON = await response.json();
+            responseJSON = responseJSON?.map((box) => ({
+                ...box,
+                apertura: new Date(`${box.mcaFechaapertura} UTC-5`),
+                cierre: new Date(`${box.mcaFechacierre} UTC-5`)
+            }));
+            setDatos(responseJSON);
+        }
+        getFetch()
+        initFilters();
+    }, []);
+
     const formatDate = (value) => {
-        return value.toLocaleDateString('en-EN', {
+        return value.toLocaleDateString('es-MX', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
         });
     };
-    // const formatDatecierre = (value) => {
-    //     return value.toLocaleDateString('es-ES', {
-    //         month: '2-digit',
-    //         day: '2-digit',
-    //         year: 'numeric'
-    //     });
-    // };
+    const formatDatecierre = (value) => {
+        return value.toLocaleDateString('es-MX', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    };
     const onGlobalFilterChange = (e) => {
         const value = e.target.value;
         let _filters = { ...filters };
@@ -109,12 +96,24 @@ const CajaDiaria = () => {
             </div>
         );
     };
-    const dateBodyTemplate = (rowData) => {
-        return formatDate(rowData.mcaFechaapertura);
+    const dateBodyTemplate = ({ apertura }) => {
+        return formatDate(apertura);
     };
-    // const dateBodyTemplatecierre = (rowData) => {
-    //     return formatDatecierre(rowData.mcaFechacierre);
-    // };
+    const initFilters = () => {
+        setFilters({
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            apertura: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
+            cierre: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
+            empId: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            cajDescripcion: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            usuNombrecompleto: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            moneda: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            estado: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
+        });
+    };
+    const dateBodyTemplatecierre = ({ cierre }) => {
+        return formatDatecierre(cierre);
+    };
     const dateFilterTemplate = (options) => {
         return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} locale='es' dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" mask="99/99/9999" />;
     };
@@ -142,13 +141,13 @@ const CajaDiaria = () => {
                         filters={filters} filterDisplay="menu" globalFilterFields={['empId', 'cajDescripcion', 'usuNombrecompleto','mcaFechaapertura']}
                         emptyMessage="No customers found." currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
-                        <Column field="mcaFechaapertura" header="Apertura" sortable filterField="apertura" dataType="date" style={{ minWidth: '12rem' }} body={dateBodyTemplate} filter filterElement={dateFilterTemplate} />
-                        {/* <Column field="mcaFechacierre" header="Cierre" sortable filterField="cierre" dataType="date" style={{ minWidth: '12rem' }} body={dateBodyTemplatecierre} filter filterElement={dateFilterTemplate} /> */}
+                        <Column field="apertura" header="Apertura" sortable filterField="apertura" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate} filter filterElement={dateFilterTemplate} />
+                        <Column field="cierre" header="Cierre" sortable filterField="cierre" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplatecierre} filter filterElement={dateFilterTemplate} />
                         <Column field="empId" header="Sucursal" sortable filter filterPlaceholder="Buscar por sucursal" style={{ minWidth: '14rem' }} />
-                        <Column field="cajDescripcion" header="Caja" sortable filter filterPlaceholder="Buscar por empresa" style={{ minWidth: '14rem' }} />
-                        <Column field="usuNombrecompleto" header="Encargado" sortable filter filterPlaceholder="Buscar por encargado" style={{ minWidth: '14rem' }} />
-                        <Column field="moneda" header="Moneda" sortable filter filterPlaceholder="Buscar por moneda" style={{ minWidth: '14rem' }} />
-                        <Column field="estado" header="Estado" sortable filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }} body={statusBodyTemplate} filter filterElement={statusFilterTemplate} />
+                        <Column field="cajDescripcion" header="Caja" sortable filter filterPlaceholder="Buscar por caja" style={{ minWidth: '10rem' }} />
+                        <Column field="usuNombrecompleto" header="Encargado" sortable filter filterPlaceholder="Buscar por encargado" style={{ minWidth: '12rem' }} />
+                        <Column field="moneda" header="Moneda" sortable filter filterPlaceholder="Buscar por moneda" style={{ minWidth: '9rem' }} />
+                        <Column field="estado" header="Estado" sortable filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '9rem' }} body={statusBodyTemplate} filter filterElement={statusFilterTemplate} />
                         <Column headerStyle={{ width: '5rem', textAlign: 'center' }} bodyStyle={{ textAlign: 'center', overflow: 'visible' }} body={actionBodyTemplate} />
                     </DataTable>
                 </div>
