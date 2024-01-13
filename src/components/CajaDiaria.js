@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Panel } from 'primereact/panel';
 import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -12,20 +13,53 @@ import { addLocale } from 'primereact/api';
 //import { CustomerService } from './service/CustomerService';
 import './styles/CajaDiaria.css';
 
-const CajaDiaria = () => {
-    //let apiroute = 'https://serviciofact.mercelab.com'
+let apiroute = 'https://serviciofact.mercelab.com'
 
+const useItems = () => {
+    const [itemDato, setItemDato] = useState([]);
+    const [itemDatoCaj, setItemDatoCaj] = useState([]);
+    const [visible, setVisible] = useState(false);
+    const [position, setPosition] = useState('center');
+    const getItems = async (urlApirRes,urlApirCaj) => {
+        try {
+          const apiItemsResp = await fetch(`${apiroute}${urlApirRes}`);
+          const apiItemsCaj = await fetch(`${apiroute}${urlApirCaj}`);
+          const itdataresp = await apiItemsResp.json();
+          const itdatacaj = await apiItemsCaj.json();
+          setItemDato(itdataresp.data.facUsuario);
+          setItemDatoCaj(itdatacaj.data);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+
+          setPosition('top')
+          setVisible(true)
+      }
+      return {
+        itemDato,
+        itemDatoCaj,
+        getItems,
+        visible,
+        position,
+        setVisible,
+        setPosition
+      }
+}
+
+const CajaDiaria = () => {
+    const responsableItems = useItems()
     const headerPanel = (
         <div className='prueba'>
             <h3>Caja Diaria</h3>
         </div>
     );
-
-
     //////////////////////////////////////////////////////////
     const [datos, setDatos] = useState([]);
+    const [date, setDate] = useState([]);
     const [selectedDato, setSelectedDato] = useState([]);
     const [filters, setFilters] = useState(null);
+    const [selectedResp, setSelectedResp] = useState(null);
+    const [selectedCaj, setSelectedCaj] = useState(null);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [statuses] = useState(['CERRADO', 'ABIERTO']);
 
@@ -93,7 +127,7 @@ const CajaDiaria = () => {
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Buscar" />
                 </span>
-                <Button label='Aperturar Caja'></Button>
+                <Button label='Aperturar Caja' onClick={() => {responsableItems.getItems('/usuario/listar','/caja/listar/1/1')}}></Button>
             </div>
         );
     };
@@ -138,10 +172,54 @@ const CajaDiaria = () => {
     };
     const header = renderHeader();
     /////////////////////////////////////////////////////////
+    const footerContent = (
+        <div>
+            <Button label="Aperturar" icon="pi pi-check" onClick={() => responsableItems.setVisible(false)} autoFocus />
+            <Button label="Cancelar" icon="pi pi-times" onClick={() => responsableItems.setVisible(false)} className="p-button-text" />
+        </div>
+    );
+
+    useEffect(() => {
+        const today = new Date();
+        setDate(today)
+    }, [])
+
+    ///////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////
     return (
         <div>
             <Panel header={headerPanel} className='px-1 pt-2' toggleable >
                 <div>
+                    <Dialog header="Aperturar Caja" visible={responsableItems.visible} position={responsableItems.position} style={{ minwidth: '50vw' }} onHide={() => responsableItems.setVisible(false)} footer={footerContent} draggable={false} resizable={false}>
+                        <div className='flex flex-wrap gap-1 justify-content-between align-items-center'>
+                            <div >
+                                <span className="p-float-label mb-3">
+                                    <Calendar locale='es' value={date} dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" mask="99/99/9999" disabled/>
+                                </span>
+                                <div>
+                                    <Dropdown placeholder="Sucursal" className="w-full" disabled />
+                                </div>
+                            </div>
+                            <div>
+                                <div className="mb-3">
+                                    <Dropdown placeholder="Responsable" value={selectedResp} onChange={(e) => setSelectedResp(e.value)} options={responsableItems.itemDato} optionLabel="usuNombrecompleto" className="w-full" />
+                                </div>
+                                <div>
+                                    <Dropdown placeholder="Caja" value={selectedCaj} onChange={(e) => setSelectedCaj(e.value)} options={responsableItems.itemDatoCaj} optionLabel="cajDescripcion" className="w-full" />
+                                </div>
+                            </div>
+                            <div>
+                                <div className="mb-3">
+                                    <Dropdown placeholder="Moneda" className="w-full" />
+                                </div>
+                                <span className="p-float-label">
+                                    <InputText id="fechaapertura" />
+                                    <label htmlFor="fecha">Imp Inicial</label>
+                                </span>
+                            </div>
+                        </div>
+                    </Dialog>
                     <DataTable value={datos} size='small' paginator header={header} rows={10}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         rowsPerPageOptions={[10, 25, 50]} dataKey="mcaId" selectionMode="checkbox" selection={selectedDato} onSelectionChange={(e) => setSelectedDato(e.value)}
