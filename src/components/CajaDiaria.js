@@ -10,8 +10,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { Tag } from 'primereact/tag';
 import { addLocale } from 'primereact/api';
-//import { CustomerService } from './service/CustomerService';
-import './styles/CajaDiaria.css';
+import EditIcon from '@mui/icons-material/Edit';
+
 
 let apiroute = 'https://serviciofact.mercelab.com'
 
@@ -161,10 +161,11 @@ const CajaDiaria = () => {
     const statusItemTemplate = (option) => {
         return <Tag value={option} severity={getSeverity(option)} />;
     };
+
     const actionBodyTemplate = () => {
         return (
             <div className="flex gap-1 justify-content-between align-items-center">
-                <Button icon="pi pi-pencil" aria-label="Editar" size='small' style={{ width: '30px', height: '32px' }} />
+                <Button icon={<EditIcon fontSize="small" />} aria-label="Editar" size='small' style={{ width: '30px', height: '32px' }} />
                 <Button icon="pi pi-calculator" severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
                 <Button icon="pi pi-times" severity="danger" aria-label="Eliminar" style={{ width: '30px', height: '32px' }} />
             </div>
@@ -174,8 +175,8 @@ const CajaDiaria = () => {
     /////////////////////////////////////////////////////////
     const footerContent = (
         <div>
-            <Button label="Aperturar" icon="pi pi-check" onClick={() => responsableItems.setVisible(false)} autoFocus />
-            <Button label="Cancelar" icon="pi pi-times" onClick={() => responsableItems.setVisible(false)} className="p-button-text" />
+            <Button label="Aperturar" icon="pi pi-check" onClick={() => {responsableItems.setVisible(false);cleanForm()}} autoFocus />
+            <Button label="Cancelar" icon="pi pi-times" onClick={() => {responsableItems.setVisible(false);cleanForm()}} className="p-button-text" />
         </div>
     );
 
@@ -184,24 +185,40 @@ const CajaDiaria = () => {
         setDate(today)
     }, [])
 
+    const cleanForm = () =>{
+        setSelectedResp(null)
+        setSelectedCaj(null)
+    }
     ///////////////////////////////////////////////////////
 
     ///////////////////////////////////////////////////////
     return (
         <div>
-            <Panel header={headerPanel} className='px-1 pt-2' toggleable >
+            <Panel header={headerPanel} className='px-1 pt-2' toggleable>
                 <div>
-                    <Dialog header="Aperturar Caja" visible={responsableItems.visible} position={responsableItems.position} style={{ minwidth: '50vw' }} onHide={() => responsableItems.setVisible(false)} footer={footerContent} draggable={false} resizable={false}>
-                        <div className='flex flex-wrap gap-1 justify-content-between align-items-center'>
-                            <div >
+                    <Dialog
+                        header="Aperturar Caja"
+                        visible={responsableItems.visible}
+                        position={responsableItems.position}
+                        style={{ minWidth: '50vw' }}
+                        onHide={() => {
+                            responsableItems.setVisible(false);
+                            cleanForm();
+                        }}
+                        footer={footerContent}
+                        draggable={false}
+                        resizable={false}
+                    >
+                        <div className='grid grid-cols-3 gap-1 sm:grid-cols-2 md:grid-cols-3'>
+                            <div className='w-full h-full'>
                                 <span className="p-float-label mb-3">
-                                    <Calendar locale='es' value={date} dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" mask="99/99/9999" disabled/>
+                                    <Calendar locale='es' value={date} dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" mask="99/99/9999" disabled />
                                 </span>
                                 <div>
                                     <Dropdown placeholder="Sucursal" className="w-full" disabled />
                                 </div>
                             </div>
-                            <div>
+                            <div className='w-full h-full'>
                                 <div className="mb-3">
                                     <Dropdown placeholder="Responsable" value={selectedResp} onChange={(e) => setSelectedResp(e.value)} options={responsableItems.itemDato} optionLabel="usuNombrecompleto" className="w-full" />
                                 </div>
@@ -209,7 +226,7 @@ const CajaDiaria = () => {
                                     <Dropdown placeholder="Caja" value={selectedCaj} onChange={(e) => setSelectedCaj(e.value)} options={responsableItems.itemDatoCaj} optionLabel="cajDescripcion" className="w-full" />
                                 </div>
                             </div>
-                            <div>
+                            <div className='w-full h-full'>
                                 <div className="mb-3">
                                     <Dropdown placeholder="Moneda" className="w-full" />
                                 </div>
@@ -220,11 +237,24 @@ const CajaDiaria = () => {
                             </div>
                         </div>
                     </Dialog>
-                    <DataTable value={datos} size='small' paginator header={header} rows={10}
+                    <DataTable
+                        value={datos}
+                        size='small'
+                        paginator
+                        header={header}
+                        rows={10}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        rowsPerPageOptions={[10, 25, 50]} dataKey="mcaId" selectionMode="checkbox" selection={selectedDato} onSelectionChange={(e) => setSelectedDato(e.value)}
-                        filters={filters} filterDisplay="menu" globalFilterFields={['empId', 'cajDescripcion', 'usuNombrecompleto', 'mcaFechaapertura']}
-                        emptyMessage="No customers found." currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+                        rowsPerPageOptions={[10, 25, 50]}
+                        dataKey="mcaId"
+                        selectionMode="checkbox"
+                        selection={selectedDato}
+                        onSelectionChange={(e) => setSelectedDato(e.value)}
+                        filters={filters}
+                        filterDisplay="menu"
+                        globalFilterFields={['empId', 'cajDescripcion', 'usuNombrecompleto', 'mcaFechaapertura']}
+                        emptyMessage="No customers found."
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    >
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
                         <Column field="apertura" header="Apertura" sortable filterField="apertura" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate} filter filterElement={dateFilterTemplate} />
                         <Column field="cierre" header="Cierre" sortable filterField="cierre" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplatecierre} filter filterElement={dateFilterTemplate} />

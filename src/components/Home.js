@@ -1,6 +1,6 @@
 import React from 'react'
 import { Card, Flex, Metric, ProgressBar, Text } from '@tremor/react';
-import { Outlet } from 'react-router-dom';
+
 
 const Home = () => {
   return (
