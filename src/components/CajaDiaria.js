@@ -9,6 +9,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { Tag } from 'primereact/tag';
+import { Toast } from 'primereact/toast';
 import { addLocale } from 'primereact/api';
 import EditIcon from '@mui/icons-material/Edit';
 
@@ -20,6 +21,7 @@ const useItems = () => {
     const [itemDatoCaj, setItemDatoCaj] = useState([]);
     const [visible, setVisible] = useState(false);
     const [position, setPosition] = useState('center');
+
     const getItems = async (urlApirRes,urlApirCaj) => {
         try {
           const apiItemsResp = await fetch(`${apiroute}${urlApirRes}`);
@@ -47,7 +49,7 @@ const useItems = () => {
 }
 
 const CajaDiaria = () => {
-    const responsableItems = useItems()
+    const varItems = useItems()
     const headerPanel = (
         <div className='prueba'>
             <h3>Caja Diaria</h3>
@@ -127,7 +129,7 @@ const CajaDiaria = () => {
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Buscar" />
                 </span>
-                <Button label='Aperturar Caja' onClick={() => {responsableItems.getItems('/usuario/listar','/caja/listar/1/1')}}></Button>
+                <Button label='Aperturar Caja' onClick={() => {varItems.getItems('/usuario/listar','/caja/listar/1/1')}}></Button>
             </div>
         );
     };
@@ -175,8 +177,8 @@ const CajaDiaria = () => {
     /////////////////////////////////////////////////////////
     const footerContent = (
         <div>
-            <Button label="Aperturar" icon="pi pi-check" onClick={() => {responsableItems.setVisible(false);cleanForm()}} autoFocus />
-            <Button label="Cancelar" icon="pi pi-times" onClick={() => {responsableItems.setVisible(false);cleanForm()}} className="p-button-text" />
+            <Button label="Aperturar" icon="pi pi-check" onClick={() => {aperturarCaja();varItems.setVisible(false);cleanForm()}} autoFocus />
+            <Button label="Cancelar" icon="pi pi-times" onClick={() => {varItems.setVisible(false);cleanForm()}} className="p-button-text" />
         </div>
     );
 
@@ -190,19 +192,68 @@ const CajaDiaria = () => {
         setSelectedCaj(null)
     }
     ///////////////////////////////////////////////////////
+    const toast = React.useRef(null);
+    const aperturarCaja = () => {
+        const fechaApertura = date.toISOString().slice(0, 10);
 
+        fetch(`${apiroute}/movimientocaja/crear`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "faccajacajId": selectedCaj.cajId,
+                "mcaTipomovimiento": 1,
+                "mcaFechaapertura": fechaApertura,
+                "mcaTotal": document.getElementById('impinicial').value,
+                "mcaMoneda": 1,
+                "glbEstadoEstId": 1,
+                "createdBy": selectedResp.usuId,
+                "gecId": 1,
+                "empId": 1
+            })
+        }).then(response => {
+            if (response.ok) {
+                response.json().then(data => {
+                    guardarMov(data.data.mcaId, data.data.mcaTipomovimiento, data.data.mcaTotal);
+                });
+                toast.current.show({ severity: 'success', summary: 'Success', detail: 'Caja Aperturada' });
+            }else{
+console.log('error')
+            }
+        })
+    }
+
+    const guardarMov = (idMov, idTip, monT) => {
+        fetch(`${apiroute}/movimientodetalle/crear`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "facMovimientocajamcaId": idMov,
+                "mdeTipomovimiento": idTip,
+                "mdeMonto": monT,
+                "glbEstadoEstId": 1,
+                "createdBy": selectedResp.usuId,
+                "gecId": 1,
+                "empId": 1
+            })
+        })
+    }
     ///////////////////////////////////////////////////////
     return (
         <div>
             <Panel header={headerPanel} className='px-1 pt-2' toggleable>
                 <div>
+                    <Toast ref={toast}></Toast>
                     <Dialog
                         header="Aperturar Caja"
-                        visible={responsableItems.visible}
-                        position={responsableItems.position}
+                        visible={varItems.visible}
+                        position={varItems.position}
                         style={{ minWidth: '50vw' }}
                         onHide={() => {
-                            responsableItems.setVisible(false);
+                            varItems.setVisible(false);
                             cleanForm();
                         }}
                         footer={footerContent}
@@ -212,7 +263,7 @@ const CajaDiaria = () => {
                         <div className='grid grid-cols-3 gap-1 sm:grid-cols-2 md:grid-cols-3'>
                             <div className='w-full h-full'>
                                 <span className="p-float-label mb-3">
-                                    <Calendar locale='es' value={date} dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" mask="99/99/9999" disabled />
+                                    <Calendar id="fechaapertura" locale='es' value={date} dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" mask="99/99/9999" disabled />
                                 </span>
                                 <div>
                                     <Dropdown placeholder="Sucursal" className="w-full" disabled />
@@ -220,10 +271,10 @@ const CajaDiaria = () => {
                             </div>
                             <div className='w-full h-full'>
                                 <div className="mb-3">
-                                    <Dropdown placeholder="Responsable" value={selectedResp} onChange={(e) => setSelectedResp(e.value)} options={responsableItems.itemDato} optionLabel="usuNombrecompleto" className="w-full" />
+                                    <Dropdown placeholder="Responsable" value={selectedResp} onChange={(e) => setSelectedResp(e.value)} options={varItems.itemDato} optionLabel="usuNombrecompleto" className="w-full" />
                                 </div>
                                 <div>
-                                    <Dropdown placeholder="Caja" value={selectedCaj} onChange={(e) => setSelectedCaj(e.value)} options={responsableItems.itemDatoCaj} optionLabel="cajDescripcion" className="w-full" />
+                                    <Dropdown placeholder="Caja" value={selectedCaj} onChange={(e) => setSelectedCaj(e.value)} options={varItems.itemDatoCaj} optionLabel="cajDescripcion" className="w-full" />
                                 </div>
                             </div>
                             <div className='w-full h-full'>
@@ -231,8 +282,8 @@ const CajaDiaria = () => {
                                     <Dropdown placeholder="Moneda" className="w-full" />
                                 </div>
                                 <span className="p-float-label">
-                                    <InputText id="fechaapertura" />
-                                    <label htmlFor="fecha">Imp Inicial</label>
+                                    <InputText id="impinicial" />
+                                    <label>Imp Inicial</label>
                                 </span>
                             </div>
                         </div>
