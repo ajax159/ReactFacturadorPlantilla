@@ -11,6 +11,7 @@ import { Calendar } from 'primereact/calendar';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
+import { Divider } from 'primereact/divider';
 import EditIcon from '@mui/icons-material/Edit';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
@@ -52,11 +53,6 @@ const useItems = () => {
 
 const CajaDiaria = () => {
     const varItems = useItems()
-    const headerPanel = (
-        <div className='prueba'>
-            <h3>Caja Diaria</h3>
-        </div>
-    );
     //////////////////////////////////////////////////////////
     const [datos, setDatos] = useState([]);
     const [date, setDate] = useState([]);
@@ -124,7 +120,7 @@ const CajaDiaria = () => {
                     </div>
                 </div>
                 <div className="flex align-center" style={{ height: '100%' }}>
-                    <DateRangePicker size="lg" placement='leftStart' onOk={e => getFetch(e)} onClean={() => fetchData()} onShortcutClick={e => getFetch(e.value)} />
+                    <DateRangePicker format="dd/MM/yyyy" character=" – " size="lg" placement='leftStart' onOk={e => getFetch(e)} onClean={() => fetchData()} onShortcutClick={e => getFetch(e.value)} />
                 </div>
             </div>
         );
@@ -222,7 +218,7 @@ const CajaDiaria = () => {
 
     return (
         <div>
-            <Panel header={headerPanel} className='px-1 pt-2' toggleable>
+            <Panel header='Caja Diaria' className='px-1 pt-2' toggleable>
                 <div>
                     <Toast ref={toast}></Toast>
                     <Dialog
@@ -237,7 +233,9 @@ const CajaDiaria = () => {
                         footer={footerContent}
                         draggable={false}
                         resizable={false}
+                        className="custom-dialog"
                     >
+                        <Divider />
                         <div className='grid grid-cols-3 gap-1 sm:grid-cols-2 md:grid-cols-3'>
                             <div className='w-full h-full'>
                                 <span className="p-float-label mb-3">
@@ -286,8 +284,8 @@ const CajaDiaria = () => {
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                     >
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
-                        <Column field="mcaFechaapertura" header="Apertura" sortable dataType="date" style={{ minWidth: '10rem' }}  />
-                        <Column field="mcaFechacierre" header="Cierre" sortable filterField="cierre" dataType="date" style={{ minWidth: '10rem' }} />
+                        <Column field="mcaFechaapertura" header="Apertura" sortable dataType="date" style={{ minWidth: '8rem' }}  />
+                        <Column field="mcaFechacierre" header="Cierre" sortable filterField="cierre" dataType="date" style={{ minWidth: '8rem' }} />
                         <Column field="empId" header="Sucursal" sortable style={{ minWidth: '14rem' }} />
                         <Column field="cajDescripcion" header="Caja" sortable style={{ minWidth: '10rem' }} />
                         <Column field="usuNombrecompleto" header="Encargado" sortable style={{ minWidth: '12rem' }} />
