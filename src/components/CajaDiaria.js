@@ -12,6 +12,8 @@ import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
 import EditIcon from '@mui/icons-material/Edit';
+import CalculateIcon from '@mui/icons-material/Calculate';
+import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import './styles/CajaDiaria.css';
 
 let apiroute = 'https://serviciofact.mercelab.com'
@@ -65,6 +67,11 @@ const CajaDiaria = () => {
     const [selectedResp, setSelectedResp] = useState(null);
     const [selectedCaj, setSelectedCaj] = useState(null);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
+    const [selectedMoneda, setSelectedMoneda] = useState(null);
+    const moneda = [
+        { name: 'Soles', code: 1 },
+        { name: 'Dolares', code: 2 }
+    ];
 
     const getSeverity = (status) => {
         switch (status) {
@@ -79,7 +86,7 @@ const CajaDiaria = () => {
     const getFetch = async (e) => {
         const startDate = e[0].toISOString().slice(0, 10);
         const endDate = e[1].toISOString().slice(0, 10);
-        let url = `https://serviciofact.mercelab.com/movimientocaja/listarmovcaja/1/1?fechainicio=${startDate}&fechafin=${endDate}`;
+        let url = `${apiroute}/movimientocaja/listarmovcaja/1/1?fechainicio=${startDate}&fechafin=${endDate}`;
         const response = await fetch(url);
         let responseJSON = await response.json();
         setDatos(responseJSON);
@@ -87,7 +94,7 @@ const CajaDiaria = () => {
     const fetchData = async () => {
         const startDate = new Date().toISOString().slice(0, 10);
         const endDate = new Date().toISOString().slice(0, 10);;
-        let url = `https://serviciofact.mercelab.com/movimientocaja/listarmovcaja/1/1?fechainicio=${startDate}&fechafin=${endDate}`;
+        let url = `${apiroute}/movimientocaja/listarmovcaja/1/1?fechainicio=${startDate}&fechafin=${endDate}`;
         const response = await fetch(url);
         let responseJSON = await response.json();
         setDatos(responseJSON);
@@ -134,8 +141,8 @@ const CajaDiaria = () => {
         return (
             <div className="flex gap-1 justify-content-between align-items-center">
                 <Button icon={<EditIcon fontSize="small" />} aria-label="Editar" size='small' style={{ width: '30px', height: '32px' }} />
-                <Button icon="pi pi-calculator" severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
-                <Button icon="pi pi-times" severity="danger" aria-label="Eliminar" style={{ width: '30px', height: '32px' }} />
+                <Button icon={<CalculateIcon fontSize="small" />} severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
+                <Button icon={<DisabledByDefaultIcon fontSize="small"/>} severity="danger" aria-label="Eliminar" style={{ width: '30px', height: '32px' }} />
             </div>
         );
     };
@@ -172,7 +179,7 @@ const CajaDiaria = () => {
                 "mcaTipomovimiento": 1,
                 "mcaFechaapertura": fechaApertura,
                 "mcaTotal": document.getElementById('impinicial').value,
-                "mcaMoneda": 1,
+                "mcaMoneda": selectedMoneda.code,
                 "glbEstadoEstId": 1,
                 "createdBy": selectedResp.usuId,
                 "gecId": 1,
@@ -186,7 +193,10 @@ const CajaDiaria = () => {
                 });
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'Caja Aperturada' });
             }else{
-console.log('error')
+                response.json().then((data) => {
+                    const servidor = data.errors[0].defaultMessage;
+                    toast.current.show({ severity: 'info', summary: 'Error', detail: servidor });
+                  });
             }
         })
     }
@@ -231,7 +241,7 @@ console.log('error')
                         <div className='grid grid-cols-3 gap-1 sm:grid-cols-2 md:grid-cols-3'>
                             <div className='w-full h-full'>
                                 <span className="p-float-label mb-3">
-                                    <Calendar id="fechaapertura" locale='es' value={date} dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" mask="99/99/9999" disabled />
+                                    <Calendar id="fechaapertura" value={date} dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" mask="99/99/9999" disabled />
                                 </span>
                                 <div>
                                     <Dropdown placeholder="Sucursal" className="w-full" disabled />
@@ -247,7 +257,7 @@ console.log('error')
                             </div>
                             <div className='w-full h-full'>
                                 <div className="mb-3">
-                                    <Dropdown placeholder="Moneda" className="w-full" />
+                                    <Dropdown placeholder="Moneda" className="w-full" options={moneda} value={selectedMoneda} onChange={(e) => setSelectedMoneda(e.value)} optionLabel="name" />
                                 </div>
                                 <span className="p-float-label">
                                     <InputText id="impinicial" />
@@ -257,6 +267,7 @@ console.log('error')
                         </div>
                     </Dialog>
                     <DataTable
+                    style={{ width: '100%' }}
                         value={datos}
                         size='small'
                         paginator
