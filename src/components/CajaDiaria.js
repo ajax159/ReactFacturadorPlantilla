@@ -16,6 +16,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import './styles/CajaDiaria.css';
+import RendiciondeCaja from './RendiciondeCaja.js';
 
 let apiroute = 'https://serviciofact.mercelab.com'
 
@@ -263,6 +264,14 @@ const CajaDiaria = () => {
                                 </span>
                             </div>
                         </div>
+                    </Dialog>
+                    <Dialog visible="true"
+                    header="Rendicion de Caja"
+                    style={{ maxWidth: '70vw' }}
+                    draggable={false}
+                    resizable={false}
+                    >
+                    <RendiciondeCaja />
                     </Dialog>
                     <DataTable
                     style={{ width: '100%' }}
