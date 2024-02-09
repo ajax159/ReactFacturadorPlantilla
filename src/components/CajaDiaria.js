@@ -267,7 +267,7 @@ const CajaDiaria = () => {
                     </Dialog>
                     <Dialog visible="true"
                     header="Rendicion de Caja"
-                    style={{ maxWidth: '70vw' }}
+                    style={{ minWidth: '70vw' }}
                     draggable={false}
                     resizable={false}
                     >
