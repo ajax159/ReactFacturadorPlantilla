@@ -26,22 +26,22 @@ const useItems = () => {
     const [visible, setVisible] = useState(false);
     const [position, setPosition] = useState('center');
 
-    const getItems = async (urlApirRes,urlApirCaj) => {
+    const getItems = async (urlApirRes, urlApirCaj) => {
         try {
-          const apiItemsResp = await fetch(`${apiroute}${urlApirRes}`);
-          const apiItemsCaj = await fetch(`${apiroute}${urlApirCaj}`);
-          const itdataresp = await apiItemsResp.json();
-          const itdatacaj = await apiItemsCaj.json();
-          setItemDato(itdataresp.data.facUsuario);
-          setItemDatoCaj(itdatacaj.data);
+            const apiItemsResp = await fetch(`${apiroute}${urlApirRes}`);
+            const apiItemsCaj = await fetch(`${apiroute}${urlApirCaj}`);
+            const itdataresp = await apiItemsResp.json();
+            const itdatacaj = await apiItemsCaj.json();
+            setItemDato(itdataresp.data.facUsuario);
+            setItemDatoCaj(itdatacaj.data);
         } catch (error) {
-          console.error('Error fetching data:', error);
+            console.error('Error fetching data:', error);
         }
 
-          setPosition('top')
-          setVisible(true)
-      }
-      return {
+        setPosition('top')
+        setVisible(true)
+    }
+    return {
         itemDato,
         itemDatoCaj,
         getItems,
@@ -49,7 +49,7 @@ const useItems = () => {
         position,
         setVisible,
         setPosition
-      }
+    }
 }
 
 const CajaDiaria = () => {
@@ -57,6 +57,7 @@ const CajaDiaria = () => {
     //////////////////////////////////////////////////////////
     const [datos, setDatos] = useState([]);
     const [date, setDate] = useState([]);
+    const [visibleRend, setVisibleRend] = useState(false);
     const [selectedDato, setSelectedDato] = useState([]);
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -138,8 +139,8 @@ const CajaDiaria = () => {
         return (
             <div className="flex gap-1 justify-content-between align-items-center">
                 <Button icon={<EditIcon fontSize="small" />} aria-label="Editar" size='small' style={{ width: '30px', height: '32px' }} />
-                <Button icon={<CalculateIcon fontSize="small" />} severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
-                <Button icon={<DisabledByDefaultIcon fontSize="small"/>} severity="danger" aria-label="Eliminar" style={{ width: '30px', height: '32px' }} />
+                <Button icon={<CalculateIcon fontSize="small" />} onClick={() => { setVisibleRend(true) }} severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
+                <Button icon={<DisabledByDefaultIcon fontSize="small" />} severity="danger" aria-label="Eliminar" style={{ width: '30px', height: '32px' }} />
             </div>
         );
     };
@@ -147,8 +148,8 @@ const CajaDiaria = () => {
     /////////////////////////////////////////////////////////
     const footerContent = (
         <div>
-            <Button label="Aperturar" icon="pi pi-check" onClick={() => {aperturarCaja();varItems.setVisible(false);cleanForm()}} autoFocus />
-            <Button label="Cancelar" icon="pi pi-times" onClick={() => {varItems.setVisible(false);cleanForm()}} className="p-button-text" />
+            <Button label="Aperturar" icon="pi pi-check" onClick={() => { aperturarCaja(); varItems.setVisible(false); cleanForm() }} autoFocus />
+            <Button label="Cancelar" icon="pi pi-times" onClick={() => { varItems.setVisible(false); cleanForm() }} className="p-button-text" />
         </div>
     );
 
@@ -157,7 +158,7 @@ const CajaDiaria = () => {
         setDate(today)
     }, [])
 
-    const cleanForm = () =>{
+    const cleanForm = () => {
         setSelectedResp(null)
         setSelectedCaj(null)
     }
@@ -189,11 +190,11 @@ const CajaDiaria = () => {
                     guardarMov(data.data.mcaId, data.data.mcaTipomovimiento, data.data.mcaTotal);
                 });
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'Caja Aperturada' });
-            }else{
+            } else {
                 response.json().then((data) => {
                     const servidor = data.errors[0].defaultMessage;
                     toast.current.show({ severity: 'info', summary: 'Error', detail: servidor });
-                  });
+                });
             }
         })
     }
@@ -265,16 +266,19 @@ const CajaDiaria = () => {
                             </div>
                         </div>
                     </Dialog>
-                    <Dialog visible="true"
-                    header="Rendicion de Caja"
-                    style={{ minWidth: '70vw' }}
-                    draggable={false}
-                    resizable={false}
+                    <Dialog visible={visibleRend}
+                        onHide={() => {
+                            setVisibleRend(false);
+                        }}
+                        header="Rendicion de Caja"
+                        style={{ minWidth: '70vw' }}
+                        draggable={false}
+                        resizable={false}
                     >
-                    <RendiciondeCaja />
+                        <RendiciondeCaja />
                     </Dialog>
                     <DataTable
-                    style={{ width: '100%' }}
+                        style={{ width: '100%' }}
                         value={datos}
                         size='small'
                         paginator
@@ -293,7 +297,7 @@ const CajaDiaria = () => {
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                     >
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
-                        <Column field="mcaFechaapertura" header="Apertura" sortable dataType="date" style={{ minWidth: '8rem' }}  />
+                        <Column field="mcaFechaapertura" header="Apertura" sortable dataType="date" style={{ minWidth: '8rem' }} />
                         <Column field="mcaFechacierre" header="Cierre" sortable filterField="cierre" dataType="date" style={{ minWidth: '8rem' }} />
                         <Column field="empId" header="Sucursal" sortable style={{ minWidth: '14rem' }} />
                         <Column field="cajDescripcion" header="Caja" sortable style={{ minWidth: '10rem' }} />
