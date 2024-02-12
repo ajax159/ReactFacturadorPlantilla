@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+
 import { TabView, TabPanel } from 'primereact/tabview';
 import './styles/RendiciondeCaja.css';
 import 'primeflex/primeflex.css';
@@ -14,7 +14,6 @@ import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import { Divider } from 'primereact/divider';
 import './styles/RendiciondeCaja.css';
 const RendiciondeCaja = () => {
-    const [tipoRend, setTipoRend] = useState('velectronica')
 
     const rendChange = (e) => {
         switch (e.target.value) {
