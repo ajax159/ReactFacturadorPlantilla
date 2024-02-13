@@ -155,7 +155,8 @@ const CajaDiaria = () => {
 
     useEffect(() => {
         const today = new Date();
-        setDate(today)
+        const formattedDate = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+        setDate(formattedDate);
     }, [])
 
     const cleanForm = () => {
@@ -217,14 +218,29 @@ const CajaDiaria = () => {
         })
     }
     ///////////////////////////////////////////////////////
+    const headerdialog = (
+        <div className='flex align-items-center justify-content-center'>
+            <div className='flex mr-3'>
+                <div id="pr_id_2_header" class="p-dialog-title" data-pc-section="headertitle">Aperturar Caja</div>
+            </div>
+            <div className='flex mr-1'>
+                <Tag value={date} severity='success' />
+            </div>
+            <div className='flex mr-1'>
+                <Tag value='CHIMBOTE' severity='info' />
+            </div>
 
+        </div>
+
+
+    )
     return (
         <div>
             <Panel header='Caja Diaria' className='px-1 pt-2' toggleable>
                 <div>
                     <Toast ref={toast}></Toast>
                     <Dialog
-                        header="Aperturar Caja"
+                        header={headerdialog}
                         visible={varItems.visible}
                         position={varItems.position}
                         style={{ minWidth: '50vw' }}
@@ -237,34 +253,34 @@ const CajaDiaria = () => {
                         resizable={false}
                         className="custom-dialog"
                     >
-                        <Divider />
-                        <div className='grid grid-cols-3 gap-1 sm:grid-cols-2 md:grid-cols-3'>
-                            <div className='w-full h-full'>
-                                <span className="p-float-label mb-3">
-                                    <Calendar id="fechaapertura" value={date} dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" mask="99/99/9999" disabled />
-                                </span>
-                                <div>
-                                    <Dropdown placeholder="Sucursal" className="w-full" disabled />
-                                </div>
+                        <div className='flex'>
+                            <div className='flex-1 mr-1 px-1 py-1'>
+                                <Dropdown placeholder="Sucursal" className="w-full" disabled />
                             </div>
-                            <div className='w-full h-full'>
-                                <div className="mb-3">
-                                    <Dropdown placeholder="Responsable" value={selectedResp} onChange={(e) => setSelectedResp(e.value)} options={varItems.itemDato} optionLabel="usuNombrecompleto" className="w-full" />
-                                </div>
-                                <div>
-                                    <Dropdown placeholder="Caja" value={selectedCaj} onChange={(e) => setSelectedCaj(e.value)} options={varItems.itemDatoCaj} optionLabel="cajDescripcion" className="w-full" />
-                                </div>
+                        </div>
+                        <div className='flex'>
+                            <div className='flex-1 mr-1 px-1 py-1'>
+                                <Dropdown placeholder="Responsable" value={selectedResp} onChange={(e) => setSelectedResp(e.value)} options={varItems.itemDato} optionLabel="usuNombrecompleto" className="w-full" />
                             </div>
-                            <div className='w-full h-full'>
-                                <div className="mb-3">
-                                    <Dropdown placeholder="Moneda" className="w-full" options={moneda} value={selectedMoneda} onChange={(e) => setSelectedMoneda(e.value)} optionLabel="name" />
-                                </div>
+                            <div className='flex-1 mr-1 px-1 py-1'>
+                                <Dropdown placeholder="Caja" value={selectedCaj} onChange={(e) => setSelectedCaj(e.value)} options={varItems.itemDatoCaj} optionLabel="cajDescripcion" className="w-full" />
+
+                            </div>
+                        </div>
+
+                        <div className='flex'>
+                            <div className="flex-1 mr-1 px-1 py-1">
+                                <Dropdown placeholder="Moneda" className="w-full" options={moneda} value={selectedMoneda} onChange={(e) => setSelectedMoneda(e.value)} optionLabel="name" />
+                            </div>
+                            <div className='flex-1 mr-1 px-1 py-1'>
                                 <span className="p-float-label">
                                     <InputText id="impinicial" />
                                     <label>Imp Inicial</label>
                                 </span>
                             </div>
+
                         </div>
+
                     </Dialog>
                     <Dialog visible={visibleRend}
                         onHide={() => {
