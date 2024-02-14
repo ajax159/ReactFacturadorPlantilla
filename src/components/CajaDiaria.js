@@ -7,16 +7,14 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
-import { Divider } from 'primereact/divider';
 import EditIcon from '@mui/icons-material/Edit';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import './styles/CajaDiaria.css';
-import RendiciondeCaja from './RendiciondeCaja.js';
+import RendiciondeCaja, {rendicionCaja} from './RendiciondeCaja.js';
 
 let apiroute = 'https://serviciofact.mercelab.com'
 
@@ -57,6 +55,7 @@ const CajaDiaria = () => {
     //////////////////////////////////////////////////////////
     const [datos, setDatos] = useState([]);
     const [date, setDate] = useState([]);
+    const [formatDate, setFormatDate] = useState([]);
     const [visibleRend, setVisibleRend] = useState(false);
     const [selectedDato, setSelectedDato] = useState([]);
     const [filters, setFilters] = useState({
@@ -156,7 +155,8 @@ const CajaDiaria = () => {
     useEffect(() => {
         const today = new Date();
         const formattedDate = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
-        setDate(formattedDate);
+        setFormatDate(formattedDate);
+        setDate(today);
     }, [])
 
     const cleanForm = () => {
@@ -224,16 +224,15 @@ const CajaDiaria = () => {
                 <div id="pr_id_2_header" class="p-dialog-title" data-pc-section="headertitle">Aperturar Caja</div>
             </div>
             <div className='flex mr-1'>
-                <Tag value={date} severity='success' />
+                <Tag value={formatDate} severity='success' />
             </div>
             <div className='flex mr-1'>
                 <Tag value='CHIMBOTE' severity='info' />
             </div>
 
         </div>
-
-
     )
+
     return (
         <div>
             <Panel header='Caja Diaria' className='px-1 pt-2' toggleable>
@@ -286,7 +285,7 @@ const CajaDiaria = () => {
                         onHide={() => {
                             setVisibleRend(false);
                         }}
-                        header="Rendicion de Caja"
+                        header={rendicionCaja}
                         style={{ minWidth: '70vw' }}
                         draggable={false}
                         resizable={false}
