@@ -10,6 +10,11 @@ import IconButton from '@mui/material/IconButton';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import { Divider } from 'primereact/divider';
 import React, { useState } from 'react'
+
+export const enviarIngreso = () => {
+console.log('enviarIngreso2222')
+}
+
 const Ingresos = () => {
     const [rendicion, setRendicion] = useState('');
     const rendChange = (e) => {

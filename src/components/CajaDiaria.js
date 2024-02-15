@@ -14,7 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import './styles/CajaDiaria.css';
-import RendiciondeCaja, {rendicionCaja} from './RendiciondeCaja.js';
+import RendiciondeCaja, {useEnviar} from './RendiciondeCaja.js';
 
 let apiroute = 'https://serviciofact.mercelab.com'
 
@@ -52,6 +52,7 @@ const useItems = () => {
 
 const CajaDiaria = () => {
     const varItems = useItems()
+    const enviarItems = useEnviar();
     //////////////////////////////////////////////////////////
     const [datos, setDatos] = useState([]);
     const [date, setDate] = useState([]);
@@ -221,7 +222,7 @@ const CajaDiaria = () => {
     const headerdialog = (
         <div className='flex align-items-center justify-content-center'>
             <div className='flex mr-3'>
-                <div id="pr_id_2_header" class="p-dialog-title" data-pc-section="headertitle">Aperturar Caja</div>
+                <div id="pr_id_2_header" className="p-dialog-title" data-pc-section="headertitle">Aperturar Caja</div>
             </div>
             <div className='flex mr-1'>
                 <Tag value={formatDate} severity='success' />
@@ -231,6 +232,24 @@ const CajaDiaria = () => {
             </div>
 
         </div>
+    )
+
+    const headerRend = (
+        <div className='flex'>
+        <div className=' mr-3'>
+            <div id="pr_id_4_header" className="p-dialog-title" data-pc-section="headertitle">Rendicion de Caja</div>
+        </div>
+        <div className='mr-3'>
+            <Button variant="contained" color="success" size="small" onClick={enviarItems.enviarSi} >
+                Enviar
+            </Button>
+        </div>
+        <div className='mr-3'>
+            <Button variant="contained" color="error" size="small">
+                Cancelar
+            </Button>
+        </div>
+    </div>
     )
 
     return (
@@ -285,7 +304,7 @@ const CajaDiaria = () => {
                         onHide={() => {
                             setVisibleRend(false);
                         }}
-                        header={rendicionCaja}
+                        header={headerRend}
                         style={{ minWidth: '70vw' }}
                         draggable={false}
                         resizable={false}

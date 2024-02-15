@@ -3,33 +3,30 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import './styles/RendiciondeCaja.css';
 import 'primeflex/primeflex.css';
 import './styles/RendiciondeCaja.css';
-import Ingresos from './RendicionCaja/Ingresos.js';
+import Ingresos, {enviarIngreso} from './RendicionCaja/Ingresos.js';
 import Egresos from './RendicionCaja/Egresos.js';
-import Button from '@mui/material/Button';
-export const rendicionCaja = (
-    
-    <div className='flex'>
-        <div className=' mr-3'>
-        <div id="pr_id_4_header" class="p-dialog-title" data-pc-section="headertitle">Rendicion de Caja</div>
-        </div>
-        <div className='mr-3'>
-        <Button variant="contained" color="success">
-        Enviar
-      </Button>
-        </div>
-        <div className='mr-3'>
-        <Button variant="contained" color="error">
-        Cancelar
-      </Button>
-        </div>
-    </div>
-)
+import React, { useState } from 'react'
+export const useEnviar = () => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const enviarSi = () => {
+        if (activeIndex === 0) {
+            enviarIngreso()
+        } else {
+            console.log('Egresos')
+        }
+    }
+    return{
+        activeIndex,
+        setActiveIndex,
+        enviarSi
+    }
+}
+
 const RendiciondeCaja = () => {
-
-
+    const enviarItems = useEnviar();
     return (
         <div>
-            <TabView>
+            <TabView activeIndex={enviarItems.activeIndex} onTabChange={(e)=>enviarItems.setActiveIndex(e.index)}>
                 <TabPanel header="Ingresos">
                     <Ingresos />
                 </TabPanel>
@@ -40,5 +37,4 @@ const RendiciondeCaja = () => {
         </div>
     )
 }
-
 export default RendiciondeCaja
