@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Panel } from 'primereact/panel';
 import { Button } from 'primereact/button';
+import ButtonMui from '@mui/material/Button';
 import { Dialog } from 'primereact/dialog';
 import { DateRangePicker } from 'rsuite';
 import { DataTable } from 'primereact/datatable';
@@ -240,14 +241,14 @@ const CajaDiaria = () => {
             <div id="pr_id_4_header" className="p-dialog-title" data-pc-section="headertitle">Rendicion de Caja</div>
         </div>
         <div className='mr-3'>
-            <Button variant="contained" color="success" size="small" onClick={enviarItems.enviarSi} >
+            <ButtonMui variant="contained" color="success" size="small" onClick={enviarItems.enviarSi} >
                 Enviar
-            </Button>
+            </ButtonMui>
         </div>
         <div className='mr-3'>
-            <Button variant="contained" color="error" size="small">
+            <ButtonMui variant="contained" color="error" size="small">
                 Cancelar
-            </Button>
+            </ButtonMui>
         </div>
     </div>
     )

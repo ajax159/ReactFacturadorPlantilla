@@ -9,14 +9,36 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import { Divider } from 'primereact/divider';
-import React, { useState } from 'react'
-
+import Autocomplete from '@mui/material/Autocomplete';
+import React, { useState, useEffect } from 'react'
+let apiroute = 'https://serviciofact.mercelab.com'
 export const enviarIngreso = () => {
-console.log('enviarIngreso2222')
+ try {
+    fetch(`${apiroute}/movimientodetalle/crear`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "facMovimientocajamcaId": '5',
+            "mdeTipomovimiento": 1,
+            "mdeMonto": 1,
+            "glbEstadoEstId": 1,
+            "createdBy": 1,
+            "gecId": 1,
+            "empId": 1
+        })
+    })
+ } catch (error) {
+    console.log(error)
+ }
 }
 
 const Ingresos = () => {
     const [rendicion, setRendicion] = useState('');
+    const [cliente, setCliente] = useState([]);
+    const [clienteSeleccionado, setClienteSeleccionado] = useState('');
+
     const rendChange = (e) => {
         setRendicion(e);
         switch (e.target.value) {
@@ -54,6 +76,21 @@ const Ingresos = () => {
                 break;
         }
     }
+    const clienteFetch = async () => {
+        const response = await fetch(`${apiroute}/cliente/listar`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        const arrayData = data.data.facCliente;
+        setCliente(arrayData);
+    };
+
+    useEffect(() => {
+        clienteFetch()
+    }, [])
     return (
         <div>
             <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -68,7 +105,7 @@ const Ingresos = () => {
                                 value={rendicion}
                                 onChange={rendChange}
                             >
-                                <MenuItem value={1} >Venta Electronica</MenuItem>
+                                <MenuItem value={1}>Venta Electronica</MenuItem>
                                 <MenuItem value={2}>Nota de Venta</MenuItem>
                                 <MenuItem value={0}>Ingreso de Efectivo</MenuItem>
                             </Select>
@@ -125,20 +162,19 @@ const Ingresos = () => {
                     <div id='nventa4'>
                         <div className="flex">
                             <div className="flex-1 mr-1">
-                                <FormControl fullWidth sx={{ m: 0.4 }} variant="outlined" size="small">
-                                    <InputLabel htmlFor="ruc-form">RUC</InputLabel>
-                                    <OutlinedInput
-                                        id="ruc-form"
-                                        label="RUC"
-                                    />
-                                </FormControl>
+                                <Autocomplete disablePortal fullWidth sx={{ m: 0.4 }} variant="outlined" size="small" options={cliente} getOptionLabel={(option) => option.cliNdocumento} renderInput={(params) => <TextField {...params} label="RuC"/>}
+                                    onChange={(event, value) => {
+                                        setClienteSeleccionado(value.cliNombreCompleto)
+                                    }}
+                                />
                             </div>
                             <div className="flex-1">
                                 <FormControl fullWidth sx={{ m: 0.4 }} variant="outlined" size="small" disabled>
-                                    <InputLabel htmlFor="razon-form">Razon Social</InputLabel>
+                                    <InputLabel htmlFor="razon-form" >Razon Social</InputLabel>
                                     <OutlinedInput
                                         id="razon-form"
                                         label="Razon Social"
+                                        value={clienteSeleccionado}
                                     />
                                 </FormControl>
                             </div>
