@@ -10,15 +10,15 @@ import IconButton from '@mui/material/IconButton';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import { Divider } from 'primereact/divider';
 import Autocomplete from '@mui/material/Autocomplete';
-import React, { useState, useEffect } from 'react'
-import { useEnviaringreso } from './useEnviarIngreso.js';
+import React, { useState, useEffect, useContext } from 'react'
+import { IngresoContext } from './useEnviarIngreso.js';
 let apiroute = 'https://serviciofact.mercelab.com'
 
 
 const Ingresos = () => {
     const [rendicion, setRendicion] = useState('');
     const [cliente, setCliente] = useState([]);
-    const clienteId = useEnviaringreso('0');
+    const clienteId = useContext(IngresoContext);
     const [clienteSeleccionado, setClienteSeleccionado] = useState('');
 
     const rendChange = (e) => {
@@ -147,7 +147,8 @@ const Ingresos = () => {
                                 <Autocomplete disablePortal fullWidth sx={{ m: 0.4 }} variant="outlined" size="small" options={cliente} getOptionLabel={(option) => option.cliNdocumento} renderInput={(params) => <TextField {...params} label="RuC"/>}
                                     onChange={(event, value) => {
                                         setClienteSeleccionado(value.cliNombreCompleto);
-                                        clienteId.setCliente(value.cliId)
+                                        clienteId.setCliente(value.cliId);
+                                        console.log(clienteId.cliente)
                                     }}
                                 />
                             </div>

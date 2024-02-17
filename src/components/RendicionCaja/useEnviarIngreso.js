@@ -1,6 +1,6 @@
-// Objetivo: enviar el ingreso de efectivo a la base de datos
-import { useState } from 'react'
+import { useState, createContext } from 'react'
 
+export const IngresoContext = createContext();
 export const useEnviaringreso = () => {
     const [movId, setMovId] = useState('')
     const [cliente, setCliente] = useState('')

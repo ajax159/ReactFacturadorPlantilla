@@ -4,11 +4,13 @@ import './styles/RendiciondeCaja.css';
 import 'primeflex/primeflex.css';
 import './styles/RendiciondeCaja.css';
 import Ingresos from './RendicionCaja/Ingresos.js';
-import {useEnviaringreso} from './RendicionCaja/useEnviarIngreso.js';
+import {IngresoContext} from './RendicionCaja/useEnviarIngreso.js';
 import Egresos from './RendicionCaja/Egresos.js';
+import { useContext } from 'react';
+
 
 const RendiciondeCaja = ({idMov}) => {
-    const enviarIngreso = useEnviaringreso();
+    const enviarIngreso = useContext(IngresoContext);
 
     return (
         <div>

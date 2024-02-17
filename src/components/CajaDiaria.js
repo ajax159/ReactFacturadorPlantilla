@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { Panel } from 'primereact/panel';
 import { Button } from 'primereact/button';
 import ButtonMui from '@mui/material/Button';
@@ -16,8 +16,7 @@ import CalculateIcon from '@mui/icons-material/Calculate';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import './styles/CajaDiaria.css';
 import RendiciondeCaja from './RendiciondeCaja.js';
-import {useEnviaringreso} from './RendicionCaja/useEnviarIngreso.js';
-
+import { IngresoContext } from './RendicionCaja/useEnviarIngreso.js';
 let apiroute = 'https://serviciofact.mercelab.com'
 
 const useItems = () => {
@@ -54,8 +53,7 @@ const useItems = () => {
 
 const CajaDiaria = () => {
     const varItems = useItems()
-    const enviarItems = useEnviaringreso();
-    const [idMov, setIdMov] = useState("");
+    const enviarItems = useContext(IngresoContext);
     //////////////////////////////////////////////////////////
     const [datos, setDatos] = useState([]);
     const [date, setDate] = useState([]);
@@ -142,7 +140,7 @@ const CajaDiaria = () => {
         return (
             <div className="flex gap-1 justify-content-between align-items-center">
                 <Button icon={<EditIcon fontSize="small" />} aria-label="Editar" size='small' style={{ width: '30px', height: '32px' }} />
-                <Button icon={<CalculateIcon fontSize="small" />} onClick={(event) => { setVisibleRend(true);setIdMov(rowData.cajDescripcion) }} severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
+                <Button icon={<CalculateIcon fontSize="small" />} onClick={(event) => { setVisibleRend(true); enviarItems.setMovId(rowData.cajDescripcion) }} severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
                 <Button icon={<DisabledByDefaultIcon fontSize="small" />} severity="danger" aria-label="Eliminar" style={{ width: '30px', height: '32px' }} />
             </div>
         );
@@ -239,20 +237,20 @@ const CajaDiaria = () => {
 
     const headerRend = (
         <div className='flex'>
-        <div className=' mr-3'>
-            <div id="pr_id_4_header" className="p-dialog-title" data-pc-section="headertitle">Rendicion de Caja</div>
+            <div className=' mr-3'>
+                <div id="pr_id_4_header" className="p-dialog-title" data-pc-section="headertitle">Rendicion de Caja</div>
+            </div>
+            <div className='mr-3'>
+                <ButtonMui variant="contained" color="success" size="small" onClick={enviarItems.print} >
+                    Enviar
+                </ButtonMui>
+            </div>
+            <div className='mr-3'>
+                <ButtonMui variant="contained" color="error" size="small">
+                    Cancelar
+                </ButtonMui>
+            </div>
         </div>
-        <div className='mr-3'>
-            <ButtonMui variant="contained" color="success" size="small" onClick={enviarItems.print} >
-                Enviar
-            </ButtonMui>
-        </div>
-        <div className='mr-3'>
-            <ButtonMui variant="contained" color="error" size="small">
-                Cancelar
-            </ButtonMui>
-        </div>
-    </div>
     )
 
     return (
@@ -303,17 +301,19 @@ const CajaDiaria = () => {
                         </div>
 
                     </Dialog>
-                    <Dialog visible={visibleRend}
-                        onHide={() => {
-                            setVisibleRend(false);
-                        }}
-                        header={headerRend}
-                        style={{ minWidth: '70vw' }}
-                        draggable={false}
-                        resizable={false}
-                    >
-                        <RendiciondeCaja idMov={idMov} />
-                    </Dialog>
+                    
+                        <Dialog visible={visibleRend}
+                            onHide={() => {
+                                setVisibleRend(false);
+                            }}
+                            header={headerRend}
+                            style={{ minWidth: '70vw' }}
+                            draggable={false}
+                            resizable={false}
+                        >
+                            <RendiciondeCaja />
+                        </Dialog>
+                   
                     <DataTable
                         style={{ width: '100%' }}
                         value={datos}
@@ -341,7 +341,7 @@ const CajaDiaria = () => {
                         <Column field="usuNombrecompleto" header="Encargado" sortable style={{ minWidth: '12rem' }} />
                         <Column field="moneda" header="Moneda" sortable style={{ minWidth: '9rem' }} />
                         <Column field="estado" header="Estado" sortable filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '9rem' }} body={statusBodyTemplate} />
-                        <Column headerStyle={{ minWidth: '4rem' }} body={(rowData)=>actionButtons(rowData)} />
+                        <Column headerStyle={{ minWidth: '4rem' }} body={(rowData) => actionButtons(rowData)} />
                     </DataTable>
                 </div>
             </Panel>

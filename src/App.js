@@ -7,7 +7,7 @@ import Asignacion from './components/Asignacion';
 import Home from './components/Home';
 import CajaDiaria from './components/CajaDiaria';
 import { Routes, Route } from 'react-router-dom';
-
+import { IngresoProvider } from './components/RendicionCaja/IngresoProvider.js';
 import "primereact/resources/themes/lara-light-indigo/theme.css";  //theme
 import "primereact/resources/primereact.min.css";                  //core css
 import "primeicons/primeicons.css";                                //icons
@@ -19,7 +19,9 @@ function App({ Component, pageProps }) {
   <Route path="asignacion" element={<Asignacion />}/>
     <Route path="/" element={<Home />}/>
     <Route path="asignacion" element={<Asignacion />}/>
-    <Route path="cajadiaria" element={<CajaDiaria />}/>
+    
+    <Route path="cajadiaria" element={<IngresoProvider><CajaDiaria /></IngresoProvider>}/>
+    
   </Route>
 </Routes>
   );
