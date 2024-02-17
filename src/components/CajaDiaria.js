@@ -15,7 +15,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import './styles/CajaDiaria.css';
-import RendiciondeCaja, {useEnviar} from './RendiciondeCaja.js';
+import RendiciondeCaja from './RendiciondeCaja.js';
+import {useEnviaringreso} from './RendicionCaja/useEnviarIngreso.js';
 
 let apiroute = 'https://serviciofact.mercelab.com'
 
@@ -53,7 +54,8 @@ const useItems = () => {
 
 const CajaDiaria = () => {
     const varItems = useItems()
-    const enviarItems = useEnviar();
+    const enviarItems = useEnviaringreso();
+    const [idMov, setIdMov] = useState("");
     //////////////////////////////////////////////////////////
     const [datos, setDatos] = useState([]);
     const [date, setDate] = useState([]);
@@ -136,11 +138,11 @@ const CajaDiaria = () => {
     };
 
 
-    const actionBodyTemplate = () => {
+    const actionButtons = (rowData) => {
         return (
             <div className="flex gap-1 justify-content-between align-items-center">
                 <Button icon={<EditIcon fontSize="small" />} aria-label="Editar" size='small' style={{ width: '30px', height: '32px' }} />
-                <Button icon={<CalculateIcon fontSize="small" />} onClick={() => { setVisibleRend(true) }} severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
+                <Button icon={<CalculateIcon fontSize="small" />} onClick={(event) => { setVisibleRend(true);setIdMov(rowData.cajDescripcion) }} severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
                 <Button icon={<DisabledByDefaultIcon fontSize="small" />} severity="danger" aria-label="Eliminar" style={{ width: '30px', height: '32px' }} />
             </div>
         );
@@ -241,7 +243,7 @@ const CajaDiaria = () => {
             <div id="pr_id_4_header" className="p-dialog-title" data-pc-section="headertitle">Rendicion de Caja</div>
         </div>
         <div className='mr-3'>
-            <ButtonMui variant="contained" color="success" size="small" onClick={enviarItems.enviarSi} >
+            <ButtonMui variant="contained" color="success" size="small" onClick={enviarItems.print} >
                 Enviar
             </ButtonMui>
         </div>
@@ -310,7 +312,7 @@ const CajaDiaria = () => {
                         draggable={false}
                         resizable={false}
                     >
-                        <RendiciondeCaja />
+                        <RendiciondeCaja idMov={idMov} />
                     </Dialog>
                     <DataTable
                         style={{ width: '100%' }}
@@ -339,7 +341,7 @@ const CajaDiaria = () => {
                         <Column field="usuNombrecompleto" header="Encargado" sortable style={{ minWidth: '12rem' }} />
                         <Column field="moneda" header="Moneda" sortable style={{ minWidth: '9rem' }} />
                         <Column field="estado" header="Estado" sortable filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '9rem' }} body={statusBodyTemplate} />
-                        <Column headerStyle={{ minWidth: '4rem' }} body={actionBodyTemplate} />
+                        <Column headerStyle={{ minWidth: '4rem' }} body={(rowData)=>actionButtons(rowData)} />
                     </DataTable>
                 </div>
             </Panel>

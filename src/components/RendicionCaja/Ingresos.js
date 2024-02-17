@@ -11,37 +11,19 @@ import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import { Divider } from 'primereact/divider';
 import Autocomplete from '@mui/material/Autocomplete';
 import React, { useState, useEffect } from 'react'
+import { useEnviaringreso } from './useEnviarIngreso.js';
 let apiroute = 'https://serviciofact.mercelab.com'
-export const enviarIngreso = () => {
- try {
-    fetch(`${apiroute}/movimientodetalle/crear`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            "facMovimientocajamcaId": '5',
-            "mdeTipomovimiento": 1,
-            "mdeMonto": 1,
-            "glbEstadoEstId": 1,
-            "createdBy": 1,
-            "gecId": 1,
-            "empId": 1
-        })
-    })
- } catch (error) {
-    console.log(error)
- }
-}
+
 
 const Ingresos = () => {
     const [rendicion, setRendicion] = useState('');
     const [cliente, setCliente] = useState([]);
+    const clienteId = useEnviaringreso('0');
     const [clienteSeleccionado, setClienteSeleccionado] = useState('');
 
     const rendChange = (e) => {
         setRendicion(e);
-        switch (e.target.value) {
+        switch (e) {
             case 1:
                 document.getElementById('medioPago').removeAttribute('hidden');
                 document.getElementById('nventa').removeAttribute('hidden');
@@ -62,7 +44,7 @@ const Ingresos = () => {
                 document.getElementById('nventa6').removeAttribute('hidden');
                 document.getElementById('medioPago').setAttribute('hidden', true);
                 break;
-            case 0:
+            case 3:
                 document.getElementById('nventa').setAttribute('hidden', true);
                 document.getElementById('nventa1').setAttribute('hidden', true);
                 document.getElementById('nventa2').setAttribute('hidden', true);
@@ -87,10 +69,10 @@ const Ingresos = () => {
         const arrayData = data.data.facCliente;
         setCliente(arrayData);
     };
-
     useEffect(() => {
         clienteFetch()
     }, [])
+
     return (
         <div>
             <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -103,11 +85,11 @@ const Ingresos = () => {
                                 id="motivo-form"
                                 label="Motivo"
                                 value={rendicion}
-                                onChange={rendChange}
+                                onChange={(e)=>rendChange(e.target.value)}
                             >
                                 <MenuItem value={1}>Venta Electronica</MenuItem>
                                 <MenuItem value={2}>Nota de Venta</MenuItem>
-                                <MenuItem value={0}>Ingreso de Efectivo</MenuItem>
+                                <MenuItem value={3}>Ingreso de Efectivo</MenuItem>
                             </Select>
                         </FormControl>
 
@@ -164,7 +146,8 @@ const Ingresos = () => {
                             <div className="flex-1 mr-1">
                                 <Autocomplete disablePortal fullWidth sx={{ m: 0.4 }} variant="outlined" size="small" options={cliente} getOptionLabel={(option) => option.cliNdocumento} renderInput={(params) => <TextField {...params} label="RuC"/>}
                                     onChange={(event, value) => {
-                                        setClienteSeleccionado(value.cliNombreCompleto)
+                                        setClienteSeleccionado(value.cliNombreCompleto);
+                                        clienteId.setCliente(value.cliId)
                                     }}
                                 />
                             </div>
