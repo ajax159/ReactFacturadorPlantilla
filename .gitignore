@@ -6,7 +6,7 @@
 # Node artifact files
 node_modules/
 dist/
-src/apiSorce.js
+/src/apiSource.js
 # Compiled Java class files
 *.class
 
