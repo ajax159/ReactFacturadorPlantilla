@@ -17,7 +17,8 @@ import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import './styles/CajaDiaria.css';
 import RendiciondeCaja from './RendiciondeCaja.js';
 import { IngresoContext } from './RendicionCaja/useEnviarIngreso.js';
-let apiroute = 'https://serviciofact.mercelab.com'
+import apiSource from '../apiSource.js';
+let apiroute = apiSource();
 
 const useItems = () => {
     const [itemDato, setItemDato] = useState([]);

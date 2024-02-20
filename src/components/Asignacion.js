@@ -14,8 +14,9 @@ import { AutoComplete } from "primereact/autocomplete";
 import './styles/Asignaciones.css';
 import 'primeicons/primeicons.css';
 import React, { useEffect, useState, useCallback } from 'react'
+import apiSource from '../apiSource.js';
 let idCajaGlobal = '0';
-let apiroute = 'https://serviciofact.mercelab.com'
+let apiroute = apiSource();
 
 
 const useBuscarc = () => {
@@ -83,7 +84,7 @@ const useSelectCajas = () => {
       .then((response) => {
         if (response.ok) {
           setSelectedDato(null);
-          getCajadata(urlApi, idItem, cajId); //const getCajadata = async (urlApi, idItem, cajId) //'cjuId', 'https://serviciofact.mercelab.com/cajausuario/','https://serviciofact.mercelab.com/cajausuario/usuario?idcaja='
+          getCajadata(urlApi, idItem, cajId); 
           toast.current.show({ severity: 'success', summary: 'Asignacion', detail: 'Usuario agregado Correctamente' });
         } else {
           response.json().then((data) => {

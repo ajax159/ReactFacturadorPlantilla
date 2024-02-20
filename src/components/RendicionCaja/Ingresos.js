@@ -12,7 +12,8 @@ import { Divider } from 'primereact/divider';
 import Autocomplete from '@mui/material/Autocomplete';
 import React, { useState, useEffect, useContext } from 'react'
 import { IngresoContext } from './useEnviarIngreso.js';
-let apiroute = 'https://serviciofact.mercelab.com'
+import apiSource from '../../apiSource.js';
+let apiroute = apiSource();
 
 
 const Ingresos = () => {
