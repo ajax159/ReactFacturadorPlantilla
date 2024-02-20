@@ -8,9 +8,24 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
-import React, { useState } from 'react'
+import Autocomplete from '@mui/material/Autocomplete';
+import React, { useState, useContext, useEffect } from 'react'
+import { IngresoContext } from './useEnviarIngreso.js';
+import clienteFetch from './fetchCliente.js';
+
+
 const Egresos = () => {
+    const globalRendicion = useContext(IngresoContext);
     const [egreso, setEgreso] = useState('');
+    const [personal, setPersonal] = useState([]);
+    const [cliente, setCliente] = useState([]);
+    const [clienteSeleccionado, setClienteSeleccionado] = useState([]);
+
+    useEffect(() => {
+        clienteFetch().then((data) => {
+            setCliente(data);
+        });
+    }, [])
     
     const egresoChange = (e) => {
         setEgreso(e)
@@ -87,13 +102,13 @@ console.log('0')
                                 id="motivo-form"
                                 label="Motivo"
                                 value={egreso}
-                                onChange={(e) => egresoChange(e.target.value)}
+                                onChange={(e) => {egresoChange(e.target.value);globalRendicion.setMotivo(e.target.value);globalRendicion.setMovimiento(2)}}
                             >
-                                <MenuItem value={1}>Pago de Proveedores</MenuItem>
-                                <MenuItem value={2}>Pago de Trabajadores</MenuItem>
-                                <MenuItem value={3}>Dpto. Bancos</MenuItem>
-                                <MenuItem value={4}>Gastos Varios</MenuItem>
-                                <MenuItem value={5}>Otros</MenuItem>
+                                <MenuItem value={4}>Pago de Proveedores</MenuItem>
+                                <MenuItem value={5}>Pago de Trabajadores</MenuItem>
+                                <MenuItem value={6}>Dpto. Bancos</MenuItem>
+                                <MenuItem value={7}>Gastos Varios</MenuItem>
+                                <MenuItem value={8}>Otros</MenuItem>
                             </Select>
                         </FormControl>
 
@@ -102,34 +117,28 @@ console.log('0')
                             <OutlinedInput
                                 id="descripcion-form"
                                 label="Descripcion"
+                                onChange={(e) => globalRendicion.setDescripcion(e.target.value)}
                             />
                         </FormControl>
                     </div>
                     <div className='flex'>
                         <div className="flex-1" id='personaldiv'>
-                            <FormControl fullWidth sx={{ m: 0.4 }} size="small">
-                                <InputLabel id="personal-label">Personal</InputLabel>
-                                <Select
-                                    labelId="personal-label"
-                                    id="personal-form"
-                                    label="Personal"
-                                >
-                                    <MenuItem >jsm</MenuItem>
-                                    <MenuItem >sf</MenuItem>
-                                    <MenuItem >sfs</MenuItem>
-                                </Select>
-                            </FormControl>
+                        <Autocomplete disablePortal fullWidth sx={{ m: 0.4 }} variant="outlined" size="small" options={personal} getOptionLabel={(option) => option.perNombreCompleto} renderInput={(params) => <TextField {...params} label="Personal"/>}
+                                    onChange={(event, value) => {
+                                        setPersonal(value.perNombreCompleto);
+                                        globalRendicion.setPersonal(value.perId)
+                                    }}
+                                />
                         </div>
                     </div>
                     <div className="flex">
                         <div className="flex-1 mr-1" id='cliente'>
-                            <FormControl fullWidth sx={{ m: 0.4 }} variant="outlined" size="small">
-                                <InputLabel htmlFor="ruc-form">RUC</InputLabel>
-                                <OutlinedInput
-                                    id="ruc-form"
-                                    label="RUC"
+                        <Autocomplete disablePortal fullWidth sx={{ m: 0.4 }} variant="outlined" size="small" options={cliente} getOptionLabel={(option) => option.cliNdocumento} renderInput={(params) => <TextField {...params} label="RuC"/>}
+                                    onChange={(event, value) => {
+                                        setClienteSeleccionado(value.cliNombreCompleto);
+                                        globalRendicion.setCliente(value.cliId)
+                                    }}
                                 />
-                            </FormControl>
                         </div>
                         <div className="flex-1" id='cliente2'>
                             <FormControl fullWidth sx={{ m: 0.4 }} variant="outlined" size="small" disabled>
@@ -137,6 +146,7 @@ console.log('0')
                                 <OutlinedInput
                                     id="razon-form"
                                     label="Razon Social"
+                                    value={clienteSeleccionado}
                                 />
                             </FormControl>
                         </div>
@@ -182,6 +192,7 @@ console.log('0')
                                 <OutlinedInput
                                     id="efectivo-form"
                                     label="Efectivo"
+                                    onChange={(e) => globalRendicion.setMonto(e.target.value)}
                                 />
                             </FormControl>
                         </div>
@@ -204,6 +215,7 @@ console.log('0')
                                 multiline
                                 rows={4}
                                 size="small"
+                                onChange={(e) => globalRendicion.setObservaciones(e.target.value)}
                             />
                         </div>
                     </div>

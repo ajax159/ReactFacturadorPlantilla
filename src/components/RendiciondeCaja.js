@@ -9,12 +9,11 @@ import Egresos from './RendicionCaja/Egresos.js';
 import { useContext } from 'react';
 
 
-const RendiciondeCaja = ({idMov}) => {
+const RendiciondeCaja = () => {
     const enviarIngreso = useContext(IngresoContext);
-
     return (
         <div>
-            <TabView activeIndex={enviarIngreso.activeindex} onTabChange={(e)=>{enviarIngreso.setActiveIndex(e.index);enviarIngreso.setMovId(idMov)}}>
+            <TabView activeIndex={enviarIngreso.activeindex} onTabChange={(e)=>{enviarIngreso.setActiveIndex(e.index);enviarIngreso.clearForm()}}>
                 <TabPanel header="Ingresos">
                     <Ingresos/>
                 </TabPanel>

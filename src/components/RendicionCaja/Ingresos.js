@@ -19,7 +19,7 @@ let apiroute = apiSource();
 const Ingresos = () => {
     const [rendicion, setRendicion] = useState('');
     const [cliente, setCliente] = useState([]);
-    const clienteId = useContext(IngresoContext);
+    const globalRendicion = useContext(IngresoContext);
     const [clienteSeleccionado, setClienteSeleccionado] = useState('');
 
     const rendChange = (e) => {
@@ -86,7 +86,7 @@ const Ingresos = () => {
                                 id="motivo-form"
                                 label="Motivo"
                                 value={rendicion}
-                                onChange={(e)=>rendChange(e.target.value)}
+                                onChange={(e)=>{rendChange(e.target.value);globalRendicion.setMotivo(e.target.value);globalRendicion.setMovimiento(1)}}
                             >
                                 <MenuItem value={1}>Venta Electronica</MenuItem>
                                 <MenuItem value={2}>Nota de Venta</MenuItem>
@@ -99,6 +99,7 @@ const Ingresos = () => {
                             <OutlinedInput
                                 id="descripcion-form"
                                 label="Descripcion"
+                                onChange={(e) => globalRendicion.setDescripcion(e.target.value)}
                             />
                         </FormControl>
 
@@ -148,8 +149,7 @@ const Ingresos = () => {
                                 <Autocomplete disablePortal fullWidth sx={{ m: 0.4 }} variant="outlined" size="small" options={cliente} getOptionLabel={(option) => option.cliNdocumento} renderInput={(params) => <TextField {...params} label="RuC"/>}
                                     onChange={(event, value) => {
                                         setClienteSeleccionado(value.cliNombreCompleto);
-                                        clienteId.setCliente(value.cliId);
-                                        console.log(clienteId.cliente)
+                                        globalRendicion.setCliente(value.cliId)
                                     }}
                                 />
                             </div>
@@ -190,6 +190,7 @@ const Ingresos = () => {
                                 <OutlinedInput
                                     id="efectivo-form"
                                     label="Efectivo"
+                                    onChange={(e) => globalRendicion.setMonto(e.target.value)}
                                 />
                             </FormControl>
                         </div>
@@ -212,6 +213,7 @@ const Ingresos = () => {
                                 multiline
                                 rows={4}
                                 size="small"
+                                onChange={(e) => globalRendicion.setObservaciones(e.target.value)}
                             />
                         </div>
                     </div>

@@ -142,7 +142,7 @@ const CajaDiaria = () => {
         return (
             <div className="flex gap-1 justify-content-between align-items-center">
                 <Button icon={<EditIcon fontSize="small" />} aria-label="Editar" size='small' style={{ width: '30px', height: '32px' }} />
-                <Button icon={<CalculateIcon fontSize="small" />} onClick={(event) => { setVisibleRend(true); enviarItems.setMovId(rowData.cajDescripcion) }} severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
+                <Button icon={<CalculateIcon fontSize="small" />} onClick={(event) => { setVisibleRend(true); enviarItems.setMovId(rowData.mcaId) }} severity="warning" aria-label="Recalcular" size='small' style={{ width: '30px', height: '32px' }} />
                 <Button icon={<DisabledByDefaultIcon fontSize="small" />} severity="danger" aria-label="Eliminar" style={{ width: '30px', height: '32px' }} />
             </div>
         );
@@ -307,6 +307,8 @@ const CajaDiaria = () => {
                         <Dialog visible={visibleRend}
                             onHide={() => {
                                 setVisibleRend(false);
+                                enviarItems.clearForm();
+                                enviarItems.setActiveIndex(0);
                             }}
                             header={headerRend}
                             style={{ minWidth: '70vw' }}
@@ -335,6 +337,7 @@ const CajaDiaria = () => {
                         emptyMessage="No customers found."
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                     >
+                        <Column hidden field="mcaId" header="Id" sortable style={{ minWidth: '14rem', display: 'hidden' }} />
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
                         <Column field="mcaFechaapertura" header="Apertura" sortable dataType="date" style={{ minWidth: '8rem' }} />
                         <Column field="mcaFechacierre" header="Cierre" sortable filterField="cierre" dataType="date" style={{ minWidth: '8rem' }} />
