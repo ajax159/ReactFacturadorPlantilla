@@ -165,7 +165,6 @@ const Asignacion = () => {
   const [buttonestado, setButtonEstado] = useState('crear');
   const [nomcaja, setNomCaja] = useState('Caja');
 
-
   const fetchData = useCallback(async () => {
     const newGecid = document.getElementById('gecid').value;
     const newEmpid = document.getElementById('empid').value;

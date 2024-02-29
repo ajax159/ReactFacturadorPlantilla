@@ -1,29 +1,15 @@
 import './App.css';
-// import CardBase from './components/CardBase';
-import MenubarDemo from './components/MenuBar';
-// import RegVentaElec from './components/RegVentaElec';
-// import ListarVentas from './components/ListarVentas';
-import Asignacion from './components/Asignacion';
-import Home from './components/Home';
-import CajaDiaria from './components/CajaDiaria';
-import { Routes, Route } from 'react-router-dom';
-import { IngresoProvider } from './components/RendicionCaja/IngresoProvider.js';
-import "primereact/resources/themes/lara-light-indigo/theme.css";  //theme
-import "primereact/resources/primereact.min.css";                  //core css
-import "primeicons/primeicons.css";                                //icons
+import { useAuthStore } from './auth/LoginAuth.js';
+import { Navigate, Outlet } from 'react-router-dom';
 
-function App({ Component, pageProps }) {
+
+
+function App() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   return (
-<Routes>
-  <Route path="/" element={<MenubarDemo />}>
-  <Route path="asignacion" element={<Asignacion />}/>
-    <Route path="/" element={<Home />}/>
-    <Route path="asignacion" element={<Asignacion />}/>
-    
-    <Route path="cajadiaria" element={<IngresoProvider><CajaDiaria /></IngresoProvider>}/>
-    
-  </Route>
-</Routes>
+    <div>
+      {isAuthenticated ? <Outlet /> : <Navigate to={"/login"} />}
+    </div>
   );
 }
 
