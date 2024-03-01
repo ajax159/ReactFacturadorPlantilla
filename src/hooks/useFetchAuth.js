@@ -15,7 +15,8 @@ export function useFetchAuth(initialUrl = '', initialOptions = {}) {
       .then((res) => res.text())
       .then((token) => {
         localStorage.setItem('token', token);
-        isAuthenticated(true);
+        console.log('token:', token);
+        isAuthenticated(token);
         navigate("/");
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps

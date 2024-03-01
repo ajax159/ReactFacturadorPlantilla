@@ -63,7 +63,7 @@ const useSelectCajas = () => {
       console.error('Error fetching data:', error);
     }
   }
-  const agregarRelacion = (atrId, atrLabel, apiEp,urlApi, idItem) => {
+  const agregarRelacion = (atrId, atrLabel, apiEp, urlApi, idItem) => {
     const datId = selectedDato[atrId];
     const cajId = idCajaGlobal
     const data = {
@@ -84,7 +84,7 @@ const useSelectCajas = () => {
       .then((response) => {
         if (response.ok) {
           setSelectedDato(null);
-          getCajadata(urlApi, idItem, cajId); 
+          getCajadata(urlApi, idItem, cajId);
           toast.current.show({ severity: 'success', summary: 'Asignacion', detail: 'Usuario agregado Correctamente' });
         } else {
           response.json().then((data) => {
@@ -171,13 +171,20 @@ const Asignacion = () => {
     setGecid(newGecid);
     setEmpid(newEmpid);
     try {
-      const response = await fetch(`${apiroute}/caja/listar/${gecid}/${empid}`);
+      const response = await fetch(`${apiroute}/caja/listar/${gecid}/${empid}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + localStorage.getItem('token')
+        }
+
+      });
       const data = await response.json();
       setCajasData(data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
-  }, [gecid, empid]); 
+  }, [gecid, empid]);
   const accionCaja = () => {
     const cajaDes = document.getElementById('buscarcaja').value;
     const cajaid = document.getElementById('cajaid').value;
@@ -315,9 +322,9 @@ const Asignacion = () => {
                 <div className="pb-2" key={data.cajId} id="div">
                   <div className="card flex justify-content-center" id={data.cajId}>
                     <Toast ref={toast}></Toast>
-                    <SplitButton className='w-full' label={data.cajDescripcion} icon="pi pi-box" 
-                    onClick={() => {admCajauser.getCajadata('/cajausuario/usuario?idcaja=','cjuId',data.cajId);admCajaser.getCajadata('/cajaserie/serie?idcaja=','cjsId',data.cajId);admCajadoc.getCajadata('/cajadocumento/documento?idcaja=','cjdId',data.cajId);setNomCaja(data.cajDescripcion) }}
-                    model={items(data.cajDescripcion, data.cajId)} severity="secondary" raised text />
+                    <SplitButton className='w-full' label={data.cajDescripcion} icon="pi pi-box"
+                      onClick={() => { admCajauser.getCajadata('/cajausuario/usuario?idcaja=', 'cjuId', data.cajId); admCajaser.getCajadata('/cajaserie/serie?idcaja=', 'cjsId', data.cajId); admCajadoc.getCajadata('/cajadocumento/documento?idcaja=', 'cjdId', data.cajId); setNomCaja(data.cajDescripcion) }}
+                      model={items(data.cajDescripcion, data.cajId)} severity="secondary" raised text />
                   </div>
                 </div>
               ))}
@@ -329,7 +336,7 @@ const Asignacion = () => {
                 <div className='w-full m-2'>
                   <Card title="Usuarios" color='blue'>
                     <div className='flex'>
-                    <Toast ref={admCajauser.toast} />
+                      <Toast ref={admCajauser.toast} />
                       <AutoComplete
                         field="usuNombrecompleto"
                         value={admCajauser.selectedDato}
@@ -337,18 +344,18 @@ const Asignacion = () => {
                         completeMethod={(event) => cajaUserB.buscarC(`/cajausuario/usuarionot?idcaja=`, event, 'usuNombrecompleto')}
                         onChange={(e) => admCajauser.setSelectedDato(e.value)}
                         dropdown className='pr-1' />
-                      <Button onClick={() => admCajauser.agregarRelacion('usuId','facUsuarioUsuId','/cajausuario/crear','/cajausuario/usuario?idcaja=','cjuId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
+                      <Button onClick={() => admCajauser.agregarRelacion('usuId', 'facUsuarioUsuId', '/cajausuario/crear', '/cajausuario/usuario?idcaja=', 'cjuId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={admCajauser.cajaDato} className="w-auto">
                       <Column field="usuNombrecompleto" header="Usuarios"></Column>
-                      <Column body={(rowData) => admCajauser.accionCaja(rowData, 'cjuId', '/cajausuario/','/cajausuario/usuario?idcaja=')} />
+                      <Column body={(rowData) => admCajauser.accionCaja(rowData, 'cjuId', '/cajausuario/', '/cajausuario/usuario?idcaja=')} />
                     </DataTable>
                   </Card>
                 </div>
                 <div className='w-full m-2'>
                   <Card title="Serie">
                     <div className='flex'>
-                    <Toast ref={admCajaser.toast} />
+                      <Toast ref={admCajaser.toast} />
                       <AutoComplete
                         field="serSerie"
                         value={admCajaser.selectedDato}
@@ -356,18 +363,18 @@ const Asignacion = () => {
                         completeMethod={(event) => cajaSerB.buscarC(`/cajaserie/notserie?idcaja=`, event, 'serSerie')}
                         onChange={(e) => admCajaser.setSelectedDato(e.value)}
                         dropdown className='pr-1' />
-                      <Button onClick={() => admCajaser.agregarRelacion('serId','facSerieSerId','/cajaserie/crear','/cajaserie/serie?idcaja=', 'cjsId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
+                      <Button onClick={() => admCajaser.agregarRelacion('serId', 'facSerieSerId', '/cajaserie/crear', '/cajaserie/serie?idcaja=', 'cjsId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={admCajaser.cajaDato}>
                       <Column field="serSerie" header="Serie"></Column>
-                      <Column body={(rowData) => admCajaser.accionCaja(rowData, 'cjsId', '/cajaserie/','/cajaserie/serie?idcaja=')} />
+                      <Column body={(rowData) => admCajaser.accionCaja(rowData, 'cjsId', '/cajaserie/', '/cajaserie/serie?idcaja=')} />
                     </DataTable>
                   </Card>
                 </div>
                 <div className='w-full m-2'>
                   <Card title="Tipo Documento">
                     <div className='flex'>
-                    <Toast ref={admCajadoc.toast} />
+                      <Toast ref={admCajadoc.toast} />
                       <AutoComplete
                         field="tpdDescripcion"
                         value={admCajadoc.selectedDato}
@@ -375,11 +382,11 @@ const Asignacion = () => {
                         completeMethod={(event) => cajaTdocB.buscarC(`/cajadocumento/notdocumento?idcaja=`, event, 'tpdDescripcion')}
                         onChange={(e) => admCajadoc.setSelectedDato(e.value)}
                         dropdown className='pr-1' />
-                      <Button onClick={() => admCajadoc.agregarRelacion('tpdId','facTipoDocumentoTpdId','/cajadocumento/crear','/cajadocumento/documento?idcaja=', 'cjdId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
+                      <Button onClick={() => admCajadoc.agregarRelacion('tpdId', 'facTipoDocumentoTpdId', '/cajadocumento/crear', '/cajadocumento/documento?idcaja=', 'cjdId')} id='addusuario' icon="pi pi-arrow-circle-down" aria-label="Filter" severity='warning' />
                     </div>
                     <DataTable value={admCajadoc.cajaDato}>
                       <Column field="tpdDescripcion" header="Documento" ></Column>
-                      <Column body={(rowData) => admCajadoc.accionCaja(rowData, 'cjdId', '/cajadocumento/','/cajadocumento/documento?idcaja=')} />
+                      <Column body={(rowData) => admCajadoc.accionCaja(rowData, 'cjdId', '/cajadocumento/', '/cajadocumento/documento?idcaja=')} />
                     </DataTable>
                   </Card>
                 </div>

@@ -18,29 +18,31 @@ import './styles/CajaDiaria.css';
 import RendiciondeCaja from './RendiciondeCaja.js';
 import { IngresoContext } from './RendicionCaja/useEnviarIngreso.js';
 import apiSource from '../apiSource.js';
+import { useAxiosFetch } from '../hooks/useAxiosFetch.js';
 let apiroute = apiSource();
 
 const useItems = () => {
+    const fetchResponsable = useAxiosFetch();
+    const fetchItemCaja = useAxiosFetch();
     const [itemDato, setItemDato] = useState([]);
     const [itemDatoCaj, setItemDatoCaj] = useState([]);
     const [visible, setVisible] = useState(false);
     const [position, setPosition] = useState('center');
 
-    const getItems = async (urlApirRes, urlApirCaj) => {
-        try {
-            const apiItemsResp = await fetch(`${apiroute}${urlApirRes}`);
-            const apiItemsCaj = await fetch(`${apiroute}${urlApirCaj}`);
-            const itdataresp = await apiItemsResp.json();
-            const itdatacaj = await apiItemsCaj.json();
-            setItemDato(itdataresp.data.facUsuario);
-            setItemDatoCaj(itdatacaj.data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
+    const getItems = (urlApirRes, urlApirCaj) => {
+        fetchResponsable.setUrl(`${apiroute}${urlApirRes}`);
+        fetchResponsable.setOptions({ method: 'GET' })
+        fetchItemCaja.setUrl(`${apiroute}${urlApirCaj}`);
+        fetchItemCaja.setOptions({ method: 'GET' })
 
         setPosition('top')
         setVisible(true)
-    }
+        setItemDato(fetchResponsable.data);
+        //setItemDatoCaj(fetchItemCaja.data);
+        console.log(fetchResponsable.data)
+        //console.log(itemDatoCaj)
+    };
+
     return {
         itemDato,
         itemDatoCaj,
@@ -53,6 +55,10 @@ const useItems = () => {
 }
 
 const CajaDiaria = () => {
+    const fetchingDataListar = useAxiosFetch();
+    const getFetchListar = useAxiosFetch();
+    const fetchMovimiento = useAxiosFetch();
+    const fetchguardarMov = useAxiosFetch();
     const varItems = useItems()
     const enviarItems = useContext(IngresoContext);
     //////////////////////////////////////////////////////////
@@ -87,17 +93,17 @@ const CajaDiaria = () => {
         const startDate = e[0].toISOString().slice(0, 10);
         const endDate = e[1].toISOString().slice(0, 10);
         let url = `${apiroute}/movimientocaja/listarmovcaja/1/1?fechainicio=${startDate}&fechafin=${endDate}`;
-        const response = await fetch(url);
-        let responseJSON = await response.json();
-        setDatos(responseJSON);
+        getFetchListar.setUrl(url);
+        getFetchListar.setOptions({ method: 'GET' })
+        setDatos(getFetchListar.data);
     }
     const fetchData = async () => {
         const startDate = new Date().toISOString().slice(0, 10);
         const endDate = new Date().toISOString().slice(0, 10);;
         let url = `${apiroute}/movimientocaja/listarmovcaja/1/1?fechainicio=${startDate}&fechafin=${endDate}`;
-        const response = await fetch(url);
-        let responseJSON = await response.json();
-        setDatos(responseJSON);
+        fetchingDataListar.setUrl(url);
+        fetchingDataListar.setOptions({ method: 'GET' })
+        setDatos(fetchingDataListar.data);
     };
     useEffect(() => {
         fetchData();
@@ -171,55 +177,50 @@ const CajaDiaria = () => {
     const toast = React.useRef(null);
     const aperturarCaja = () => {
         const fechaApertura = date;
-
-        fetch(`${apiroute}/movimientocaja/crear`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                "faccajacajId": selectedCaj.cajId,
-                "mcaTipomovimiento": 1,
-                "mcaFechaapertura": fechaApertura,
-                "mcaTotal": document.getElementById('impinicial').value,
-                "mcaMoneda": selectedMoneda.code,
-                "glbEstadoEstId": 1,
-                "createdBy": selectedResp.usuId,
-                "gecId": 1,
-                "empId": 1
+        // fetchMovimiento.setUrl(url);
+        // fetchMovimiento.setOptions({ method: 'GET' })
+        // setDatos(fetchMovimiento.data);
+        const dataFetch = {
+            faccajacajId: selectedCaj.cajId,
+            mcaTipomovimiento: 1,
+            mcaFechaapertura: fechaApertura,
+            mcaTotal: document.getElementById('impinicial').value,
+            mcaMoneda: selectedMoneda.code,
+            glbEstadoEstId: 1,
+            createdBy: selectedResp.usuId,
+            gecId: 1,
+            empId: 1
+        }
+        fetchMovimiento.setUrl(`${apiroute}/movimientocaja/crear`)
+        fetchMovimiento.setOptions({ method: 'POST', body: JSON.stringify(dataFetch) })
+            .then(response => {
+                if (response.ok) {
+                    fetchData();
+                    response.json().then(data => {
+                        guardarMov(data.data.mcaId, data.data.mcaTipomovimiento, data.data.mcaTotal);
+                    });
+                    toast.current.show({ severity: 'success', summary: 'Success', detail: 'Caja Aperturada' });
+                } else {
+                    response.json().then((data) => {
+                        const servidor = data.errors[0].defaultMessage;
+                        toast.current.show({ severity: 'info', summary: 'Error', detail: servidor });
+                    });
+                }
             })
-        }).then(response => {
-            if (response.ok) {
-                fetchData();
-                response.json().then(data => {
-                    guardarMov(data.data.mcaId, data.data.mcaTipomovimiento, data.data.mcaTotal);
-                });
-                toast.current.show({ severity: 'success', summary: 'Success', detail: 'Caja Aperturada' });
-            } else {
-                response.json().then((data) => {
-                    const servidor = data.errors[0].defaultMessage;
-                    toast.current.show({ severity: 'info', summary: 'Error', detail: servidor });
-                });
-            }
-        })
     }
 
     const guardarMov = (idMov, idTip, monT) => {
-        fetch(`${apiroute}/movimientodetalle/crear`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                "facMovimientocajamcaId": idMov,
-                "mdeTipomovimiento": idTip,
-                "mdeMonto": monT,
-                "glbEstadoEstId": 1,
-                "createdBy": selectedResp.usuId,
-                "gecId": 1,
-                "empId": 1
-            })
-        })
+        const dataFetch = {
+            facMovimientocajamcaId: idMov,
+            mdeTipomovimiento: idTip,
+            mdeMonto: monT,
+            glbEstadoEstId: 1,
+            createdBy: selectedResp.usuId,
+            gecId: 1,
+            empId: 1
+        }
+        fetchguardarMov.setUrl(`${apiroute}/movimientodetalle/crear`)
+        fetchguardarMov.setOptions({ method: 'POST', body: JSON.stringify(dataFetch) })
     }
     ///////////////////////////////////////////////////////
     const headerdialog = (
@@ -303,21 +304,21 @@ const CajaDiaria = () => {
                         </div>
 
                     </Dialog>
-                    
-                        <Dialog visible={visibleRend}
-                            onHide={() => {
-                                setVisibleRend(false);
-                                enviarItems.clearForm();
-                                enviarItems.setActiveIndex(0);
-                            }}
-                            header={headerRend}
-                            style={{ minWidth: '70vw' }}
-                            draggable={false}
-                            resizable={false}
-                        >
-                            <RendiciondeCaja />
-                        </Dialog>
-                   
+
+                    <Dialog visible={visibleRend}
+                        onHide={() => {
+                            setVisibleRend(false);
+                            enviarItems.clearForm();
+                            enviarItems.setActiveIndex(0);
+                        }}
+                        header={headerRend}
+                        style={{ minWidth: '70vw' }}
+                        draggable={false}
+                        resizable={false}
+                    >
+                        <RendiciondeCaja />
+                    </Dialog>
+
                     <DataTable
                         style={{ width: '100%' }}
                         value={datos}

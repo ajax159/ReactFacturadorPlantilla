@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export function useAxiosFetch(initialUrl = '', initialOptions = {}) {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
   const [url, setUrl] = useState(initialUrl);
   const [options, setOptions] = useState(initialOptions);
 

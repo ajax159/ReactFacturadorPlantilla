@@ -4,10 +4,12 @@ import { InputText } from 'primereact/inputtext';
 import { Outlet } from 'react-router-dom';
 import { useFetchAuth } from '../hooks/useFetchAuth';
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from '../auth/LoginAuth.js';
 
 export default function MenuBar() {
    const fetchData = useFetchAuth('');
    const navigate = useNavigate();
+   const isAuthenticated = useAuthStore((state) => state.logout);
    const items = [
       {
          idmodulo: '1',
@@ -156,7 +158,8 @@ export default function MenuBar() {
       },
       {
          label: 'Logout',
-         icon: 'pi pi-fw pi-power-off'
+         icon: 'pi pi-fw pi-power-off',
+         command: () => { isAuthenticated() }
       }
    ];
 
