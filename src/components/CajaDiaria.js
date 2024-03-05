@@ -7,7 +7,6 @@ import { DateRangePicker } from 'rsuite';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
@@ -19,66 +18,20 @@ import RendiciondeCaja from './RendiciondeCaja.js';
 import { IngresoContext } from './RendicionCaja/useEnviarIngreso.js';
 import apiSource from '../apiSource.js';
 import { useAxiosFetch } from '../hooks/useAxiosFetch.js';
+import { AperturarCaja } from './AperturarCaja.js';
 let apiroute = apiSource();
 
-const useItems = () => {
-    const fetchResponsable = useAxiosFetch();
-    const fetchItemCaja = useAxiosFetch();
-    const [itemDato, setItemDato] = useState([]);
-    const [itemDatoCaj, setItemDatoCaj] = useState([]);
-    const [visible, setVisible] = useState(false);
-    const [position, setPosition] = useState('center');
-
-    const getItems = (urlApirRes, urlApirCaj) => {
-        fetchResponsable.setUrl(`${apiroute}${urlApirRes}`);
-        fetchResponsable.setOptions({ method: 'GET' })
-        fetchItemCaja.setUrl(`${apiroute}${urlApirCaj}`);
-        fetchItemCaja.setOptions({ method: 'GET' })
-
-        setPosition('top')
-        setVisible(true)
-        setItemDato(fetchResponsable.data);
-        //setItemDatoCaj(fetchItemCaja.data);
-        console.log(fetchResponsable.data)
-        //console.log(itemDatoCaj)
-    };
-
-    return {
-        itemDato,
-        itemDatoCaj,
-        getItems,
-        visible,
-        position,
-        setVisible,
-        setPosition
-    }
-}
-
 const CajaDiaria = () => {
+    const { setOpen, dialog } = AperturarCaja();
     const fetchingDataListar = useAxiosFetch();
-    const getFetchListar = useAxiosFetch();
-    const fetchMovimiento = useAxiosFetch();
-    const fetchguardarMov = useAxiosFetch();
-    const varItems = useItems()
     const enviarItems = useContext(IngresoContext);
-    //////////////////////////////////////////////////////////
     const [datos, setDatos] = useState([]);
-    const [date, setDate] = useState([]);
-    const [formatDate, setFormatDate] = useState([]);
     const [visibleRend, setVisibleRend] = useState(false);
     const [selectedDato, setSelectedDato] = useState([]);
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
     });
-    const [selectedResp, setSelectedResp] = useState(null);
-    const [selectedCaj, setSelectedCaj] = useState(null);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
-    const [selectedMoneda, setSelectedMoneda] = useState(null);
-    const moneda = [
-        { name: 'Soles', code: 1 },
-        { name: 'Dolares', code: 2 }
-    ];
-
     const getSeverity = (status) => {
         switch (status) {
             case 'CERRADO':
@@ -89,25 +42,29 @@ const CajaDiaria = () => {
             default:
         }
     };
-    const getFetch = async (e) => {
-        const startDate = e[0].toISOString().slice(0, 10);
-        const endDate = e[1].toISOString().slice(0, 10);
-        let url = `${apiroute}/movimientocaja/listarmovcaja/1/1?fechainicio=${startDate}&fechafin=${endDate}`;
-        getFetchListar.setUrl(url);
-        getFetchListar.setOptions({ method: 'GET' })
-        setDatos(getFetchListar.data);
-    }
-    const fetchData = async () => {
-        const startDate = new Date().toISOString().slice(0, 10);
-        const endDate = new Date().toISOString().slice(0, 10);;
-        let url = `${apiroute}/movimientocaja/listarmovcaja/1/1?fechainicio=${startDate}&fechafin=${endDate}`;
-        fetchingDataListar.setUrl(url);
-        fetchingDataListar.setOptions({ method: 'GET' })
-        setDatos(fetchingDataListar.data);
+    const fetchData = async (e) => {
+        let fechainicio = ''
+        let fechafin = ''
+        const date = new Date();
+        const formattedDate = date.toLocaleDateString('en-CA');
+        if (!e) {
+            fechainicio = formattedDate;
+            fechafin = formattedDate;;
+        } else {
+            fechainicio = e[0].toISOString().slice(0, 10);
+            fechafin = e[1].toISOString().slice(0, 10);
+        }
+        let url = `${apiroute}/movimientocaja/listarmovcaja/1/1?fechainicio=${fechainicio}&fechafin=${fechafin}`;
+        fetchingDataListar.fetchData(url, { method: 'GET' })
     };
     useEffect(() => {
+        if (fetchingDataListar.data) {
+            setDatos(fetchingDataListar.data);
+        }
+    }, [fetchingDataListar.data]);
+    useEffect(() => {
         fetchData();
-    }, [date]);
+    }, []);
     const onGlobalFilterChange = (e) => {
         const value = e.target.value;
         let _filters = { ...filters };
@@ -115,7 +72,6 @@ const CajaDiaria = () => {
         setFilters(_filters);
         setGlobalFilterValue(value);
     };
-    //gita
     const renderHeader = () => {
         return (
             <div className="flex flex-wrap gap-2 justify-between align-center">
@@ -127,23 +83,18 @@ const CajaDiaria = () => {
                         </span>
                     </div>
                     <div style={{ marginLeft: '10px' }}>
-                        <Button label='Aperturar Caja' onClick={() => { varItems.getItems('/usuario/listar', '/caja/listar/1/1') }}></Button>
+                        <Button label='Aperturar Caja' onClick={() => setOpen(true)}></Button>
                     </div>
                 </div>
                 <div className="flex align-center" style={{ height: '100%' }}>
-                    <DateRangePicker format="dd/MM/yyyy" character=" – " size="lg" placement='leftStart' onOk={e => getFetch(e)} onClean={() => fetchData()} onShortcutClick={e => getFetch(e.value)} />
+                    <DateRangePicker format="dd/MM/yyyy" character=" – " size="lg" placement='leftStart' onOk={e => fetchData(e)} onClean={() => fetchData()} onShortcutClick={e => fetchData(e.value)} />
                 </div>
             </div>
         );
     };
-
-
-
     const statusBodyTemplate = (rowData) => {
         return <Tag value={rowData.estado} severity={getSeverity(rowData.estado)} />;
     };
-
-
     const actionButtons = (rowData) => {
         return (
             <div className="flex gap-1 justify-content-between align-items-center">
@@ -154,90 +105,7 @@ const CajaDiaria = () => {
         );
     };
     const header = renderHeader();
-    /////////////////////////////////////////////////////////
-    const footerContent = (
-        <div>
-            <Button label="Aperturar" icon="pi pi-check" onClick={() => { aperturarCaja(); varItems.setVisible(false); cleanForm() }} autoFocus />
-            <Button label="Cancelar" icon="pi pi-times" onClick={() => { varItems.setVisible(false); cleanForm() }} className="p-button-text" />
-        </div>
-    );
-
-    useEffect(() => {
-        const today = new Date();
-        const formattedDate = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
-        setFormatDate(formattedDate);
-        setDate(today);
-    }, [])
-
-    const cleanForm = () => {
-        setSelectedResp(null)
-        setSelectedCaj(null)
-    }
-    ///////////////////////////////////////////////////////
     const toast = React.useRef(null);
-    const aperturarCaja = () => {
-        const fechaApertura = date;
-        // fetchMovimiento.setUrl(url);
-        // fetchMovimiento.setOptions({ method: 'GET' })
-        // setDatos(fetchMovimiento.data);
-        const dataFetch = {
-            faccajacajId: selectedCaj.cajId,
-            mcaTipomovimiento: 1,
-            mcaFechaapertura: fechaApertura,
-            mcaTotal: document.getElementById('impinicial').value,
-            mcaMoneda: selectedMoneda.code,
-            glbEstadoEstId: 1,
-            createdBy: selectedResp.usuId,
-            gecId: 1,
-            empId: 1
-        }
-        fetchMovimiento.setUrl(`${apiroute}/movimientocaja/crear`)
-        fetchMovimiento.setOptions({ method: 'POST', body: JSON.stringify(dataFetch) })
-            .then(response => {
-                if (response.ok) {
-                    fetchData();
-                    response.json().then(data => {
-                        guardarMov(data.data.mcaId, data.data.mcaTipomovimiento, data.data.mcaTotal);
-                    });
-                    toast.current.show({ severity: 'success', summary: 'Success', detail: 'Caja Aperturada' });
-                } else {
-                    response.json().then((data) => {
-                        const servidor = data.errors[0].defaultMessage;
-                        toast.current.show({ severity: 'info', summary: 'Error', detail: servidor });
-                    });
-                }
-            })
-    }
-
-    const guardarMov = (idMov, idTip, monT) => {
-        const dataFetch = {
-            facMovimientocajamcaId: idMov,
-            mdeTipomovimiento: idTip,
-            mdeMonto: monT,
-            glbEstadoEstId: 1,
-            createdBy: selectedResp.usuId,
-            gecId: 1,
-            empId: 1
-        }
-        fetchguardarMov.setUrl(`${apiroute}/movimientodetalle/crear`)
-        fetchguardarMov.setOptions({ method: 'POST', body: JSON.stringify(dataFetch) })
-    }
-    ///////////////////////////////////////////////////////
-    const headerdialog = (
-        <div className='flex align-items-center justify-content-center'>
-            <div className='flex mr-3'>
-                <div id="pr_id_2_header" className="p-dialog-title" data-pc-section="headertitle">Aperturar Caja</div>
-            </div>
-            <div className='flex mr-1'>
-                <Tag value={formatDate} severity='success' />
-            </div>
-            <div className='flex mr-1'>
-                <Tag value='CHIMBOTE' severity='info' />
-            </div>
-
-        </div>
-    )
-
     const headerRend = (
         <div className='flex'>
             <div className=' mr-3'>
@@ -256,55 +124,13 @@ const CajaDiaria = () => {
         </div>
     )
 
+
     return (
         <div>
             <Panel header='Caja Diaria' className='px-1 pt-2' toggleable>
                 <div>
                     <Toast ref={toast}></Toast>
-                    <Dialog
-                        header={headerdialog}
-                        visible={varItems.visible}
-                        position={varItems.position}
-                        style={{ minWidth: '50vw' }}
-                        onHide={() => {
-                            varItems.setVisible(false);
-                            cleanForm();
-                        }}
-                        footer={footerContent}
-                        draggable={false}
-                        resizable={false}
-                        className="custom-dialog"
-                    >
-                        <div className='flex'>
-                            <div className='flex-1 mr-1 px-1 py-1'>
-                                <Dropdown placeholder="Sucursal" className="w-full" disabled />
-                            </div>
-                        </div>
-                        <div className='flex'>
-                            <div className='flex-1 mr-1 px-1 py-1'>
-                                <Dropdown placeholder="Responsable" value={selectedResp} onChange={(e) => setSelectedResp(e.value)} options={varItems.itemDato} optionLabel="usuNombrecompleto" className="w-full" />
-                            </div>
-                            <div className='flex-1 mr-1 px-1 py-1'>
-                                <Dropdown placeholder="Caja" value={selectedCaj} onChange={(e) => setSelectedCaj(e.value)} options={varItems.itemDatoCaj} optionLabel="cajDescripcion" className="w-full" />
-
-                            </div>
-                        </div>
-
-                        <div className='flex'>
-                            <div className="flex-1 mr-1 px-1 py-1">
-                                <Dropdown placeholder="Moneda" className="w-full" options={moneda} value={selectedMoneda} onChange={(e) => setSelectedMoneda(e.value)} optionLabel="name" />
-                            </div>
-                            <div className='flex-1 mr-1 px-1 py-1'>
-                                <span className="p-float-label">
-                                    <InputText id="impinicial" />
-                                    <label>Imp Inicial</label>
-                                </span>
-                            </div>
-
-                        </div>
-
-                    </Dialog>
-
+                    {dialog}
                     <Dialog visible={visibleRend}
                         onHide={() => {
                             setVisibleRend(false);

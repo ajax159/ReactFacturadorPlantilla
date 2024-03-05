@@ -6,20 +6,28 @@ export function useAxiosFetch(initialUrl = '', initialOptions = {}) {
   const [url, setUrl] = useState(initialUrl);
   const [options, setOptions] = useState(initialOptions);
 
-  useEffect(() => {
-    if (!url) return;
+  const fetchData = (requestUrl, requestOptions) => {
+    if (!requestUrl) return Promise.resolve();
     const token = localStorage.getItem('token');
     const axiosOptions = {
-      ...options,
+      ...requestOptions,
       headers: {
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
-        ...options.headers,
+        ...requestOptions.headers,
       },
     };
-    axios(url, axiosOptions)
-      .then((res) => setData(res.data))
+    return axios(requestUrl, axiosOptions)
+      .then((res) => {
+        setData(res.data);
+        return res;
+      })
       .catch((error) => console.error(error));
+  };
+
+  useEffect(() => {
+    fetchData();
   }, [url, options]);
 
-  return { data, setUrl, setOptions };
+  return { data, setUrl, setOptions, fetchData };
 }
