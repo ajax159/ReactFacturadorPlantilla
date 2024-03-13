@@ -16,9 +16,11 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import { useAxiosFetch } from '../hooks/useAxiosFetch';
+import { useListarCajaStore } from './AperturarCaja/stores/listarcajaStore';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import apiSource from './../apiSource';
+import { useMovimientocaja } from '../hooks/useMovimientocaja';
 let api = apiSource();
 
 
@@ -29,10 +31,10 @@ export function AperturarCaja() {
     const [open, setOpen] = useState(false);
     const [caja, setCaja] = useState('');
     const [monto, setMonto] = useState('');
-
+    const [datos, setDatos] = useState('');
     const { register, reset, handleSubmit } = useForm();
     const [moneda, setMoneda] = useState('1');
-
+    const listarMovimiento = useMovimientocaja();
     const sentCaja = (event) => {
         setCaja(event.target.value);
     };
@@ -45,7 +47,9 @@ export function AperturarCaja() {
 
     useEffect(() => {
         const url = `${api}/caja/listar/1/1`;
-        fetchListar.fetchData(url, { method: 'GET' })
+        fetchListar.fetchData(url, { method: 'GET' }).then(response => {
+            setDatos(response.data)
+        });
         // eslint-disable-next-line
     }, []);
 
@@ -66,15 +70,13 @@ export function AperturarCaja() {
             gecId: 1,
             empId: 1
         }
-        console.log(contentData);
         const url = `${api}/movimientocaja/crear`;
         fetchMovimiento.fetchData(url, { method: 'POST', data: contentData }).then(response => {
             if (response.status === 201) {
                 const data = response.data;
                 guardarMov(data.data.mcaId, data.data.mcaTipomovimiento, data.data.mcaTotal);
-            } else {
-                console.log('errorrrr')
             }
+            listarMovimiento.fetchData();
         }).catch(error => {
             console.log('Error:', error.message);
         });
@@ -89,10 +91,10 @@ export function AperturarCaja() {
                 gecId: 1,
                 empId: 1
             }
-            console.log(dataFetch);
             fetchDetalle.fetchData(`${api}/movimientodetalle/crear`, { method: 'POST', data: dataFetch })
         }
         handleClose();
+
     }
 
 
@@ -128,12 +130,11 @@ export function AperturarCaja() {
                                     <Select
                                         value={caja}
                                         label="Caja"
-                                        {...register("cajas")}
                                         onChange={sentCaja}
                                         size="small"
                                         onSelect={(e) => setCaja(e.key)}
                                     >
-                                        {fetchListar.data.data ? fetchListar.data.data.map((item) => <MenuItem key={item.cajId} value={item.cajId}>{item.cajDescripcion}</MenuItem>) : null}
+                                        {datos.data ? datos.data.map((item) => <MenuItem key={item.cajId} value={item.cajId}>{item.cajDescripcion}</MenuItem>) : null}
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -168,7 +169,8 @@ export function AperturarCaja() {
 
     return {
         dialog,
-        setOpen
+        setOpen,
+        open
     }
 
 }

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export function useAxiosFetch(initialUrl = '', initialOptions = {}) {
-  const [data, setData] = useState([]);
   const [url, setUrl] = useState(initialUrl);
   const [options, setOptions] = useState(initialOptions);
 
@@ -19,7 +18,6 @@ export function useAxiosFetch(initialUrl = '', initialOptions = {}) {
     };
     return axios(requestUrl, axiosOptions)
       .then((res) => {
-        setData(res.data);
         return res;
       })
       .catch((error) => console.error(error));
@@ -29,5 +27,6 @@ export function useAxiosFetch(initialUrl = '', initialOptions = {}) {
     fetchData();
   }, [url, options]);
 
-  return { data, setUrl, setOptions, fetchData };
+
+  return { setUrl, setOptions, fetchData };
 }

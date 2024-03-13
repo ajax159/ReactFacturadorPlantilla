@@ -16,21 +16,27 @@ import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import './styles/CajaDiaria.css';
 import RendiciondeCaja from './RendiciondeCaja.js';
 import { IngresoContext } from './RendicionCaja/useEnviarIngreso.js';
-import apiSource from '../apiSource.js';
-import { useAxiosFetch } from '../hooks/useAxiosFetch.js';
 import { AperturarCaja } from './AperturarCaja.js';
-let apiroute = apiSource();
+import { useListarCajaStore } from './AperturarCaja/stores/listarcajaStore.js';
+import { useMovimientocaja } from '../hooks/useMovimientocaja.js';
 
 const CajaDiaria = () => {
-    const { setOpen, dialog } = AperturarCaja();
-    const fetchingDataListar = useAxiosFetch();
+    const { setOpen, dialog, open } = AperturarCaja();
+    const listarMovimiento = useMovimientocaja();
     const enviarItems = useContext(IngresoContext);
-    const [datos, setDatos] = useState([]);
     const [visibleRend, setVisibleRend] = useState(false);
     const [selectedDato, setSelectedDato] = useState([]);
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
     });
+    const datos = useListarCajaStore(state => state.datos);
+    useEffect(() => {
+        if (open === false) {
+            listarMovimiento.fetchData();
+        }
+        //eslint-disable-next-line
+    }, []);
+
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const getSeverity = (status) => {
         switch (status) {
@@ -42,29 +48,7 @@ const CajaDiaria = () => {
             default:
         }
     };
-    const fetchData = async (e) => {
-        let fechainicio = ''
-        let fechafin = ''
-        const date = new Date();
-        const formattedDate = date.toLocaleDateString('en-CA');
-        if (!e) {
-            fechainicio = formattedDate;
-            fechafin = formattedDate;;
-        } else {
-            fechainicio = e[0].toISOString().slice(0, 10);
-            fechafin = e[1].toISOString().slice(0, 10);
-        }
-        let url = `${apiroute}/movimientocaja/listarmovcaja/1/1?fechainicio=${fechainicio}&fechafin=${fechafin}`;
-        fetchingDataListar.fetchData(url, { method: 'GET' })
-    };
-    useEffect(() => {
-        if (fetchingDataListar.data) {
-            setDatos(fetchingDataListar.data);
-        }
-    }, [fetchingDataListar.data]);
-    useEffect(() => {
-        fetchData();
-    }, []);
+
     const onGlobalFilterChange = (e) => {
         const value = e.target.value;
         let _filters = { ...filters };
@@ -87,7 +71,7 @@ const CajaDiaria = () => {
                     </div>
                 </div>
                 <div className="flex align-center" style={{ height: '100%' }}>
-                    <DateRangePicker format="dd/MM/yyyy" character=" – " size="lg" placement='leftStart' onOk={e => fetchData(e)} onClean={() => fetchData()} onShortcutClick={e => fetchData(e.value)} />
+                    <DateRangePicker format="dd/MM/yyyy" character=" – " size="lg" placement='leftStart' onOk={e => listarMovimiento.fetchData(e)} onClean={() => listarMovimiento.fetchData()} onShortcutClick={e => listarMovimiento.fetchData(e.value)} />
                 </div>
             </div>
         );
